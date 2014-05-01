@@ -1,8 +1,8 @@
 package it.interfacce;
 
-import java.io.Serializable;
 
-public class Utente implements Serializable {
+
+public class Utente{
 	
 	private static final long serialVersionUID=10L;
 	private String nome;

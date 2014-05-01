@@ -1,5 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">LavorO-Matic</string>
+    <string name="loading_text_background">LavorO-Matic\nLog-In</string>
+    <string name="instruction_title">tocca lo schermo per il login</string>
+    <string name="action_aggiorna_lavori">Aggiorna Lavori</string>
+    <string name="title_activity_loading">LavorO-Matic</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="effettua_login">Effettua\nLogin</string>
+    <string name="contentDescription_logo">Logo di LavorO-Matic</string>
 
 </resources>
