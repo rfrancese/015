@@ -1,6 +1,22 @@
 package application.lavoro_matic;
 
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+
+import it.connessioni.Connessioni;
 import application.lavoro_matic.util.SystemUiHider;
 
 import android.annotation.TargetApi;
@@ -11,6 +27,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 
 /**
@@ -56,6 +76,17 @@ public class LoadingActivity extends Activity {
 
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
+		/*Button login = (Button)findViewById(R.id.dummy_button);
+		login.setOnClickListener(new OnClickListener() {
+			
+			
+			public void onClick(View arg0) {
+				new Connessioni().execute("http://ricercadiphp.altervista.org/connect.php");
+				    
+				
+			}
+		});*/
+		
 
 		// Set up an instance of SystemUiHider to control the system UI for
 		// this activity.
@@ -165,6 +196,15 @@ public class LoadingActivity extends Activity {
 	
 	public void login(View view)
 	{
-		
+		EditText edit_email = (EditText)findViewById(R.id.edit_email_login);
+		EditText edit_password=(EditText)findViewById(R.id.password_login);
+		String user =edit_email.getText().toString();
+		String psw = edit_password.getText().toString();
+		new Connessioni(this).execute("http://ricercadiphp.altervista.org/AccessoDatabase.php",user,psw);
+	}
+	
+	public void aBuonFine(String text)
+	{
+		Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
 	}
 }
