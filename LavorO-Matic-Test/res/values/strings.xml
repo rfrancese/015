@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">LavorO-Matic</string>
+    <string name="loading_text_background">LavorO-Matic\nLog-In</string>
+    <string name="instruction_title">tocca lo schermo per il login</string>
+    <string name="action_aggiorna_lavori">Aggiorna Lavori</string>
+    <string name="title_activity_loading">LavorO-Matic</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="effettua_login">Effettua\nLogin</string>
+    <string name="contentDescription_logo">Logo di LavorO-Matic</string>
+    <string name="title_activity_home_page_amm">HomePage_amm</string>
+    <string name="title_section1">Lavori</string>
+    <string name="title_section2">Dipendeti</string>
+    <string name="action_settings">Opzioni</string>
+    <string name="title_activity_testing">Testing</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_prova">ProvaActivity</string>
+    <string name="title_section3">Section 3</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+
+</resources>
