@@ -34,6 +34,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="applicaton.lavoro_matic_test.LoadingActivity" />
         </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.SeeJob"
+            android:label="@string/title_activity_see_job"
+            android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.HomePage_amm" />
+        </activity>
     </application>
 
 </manifest>

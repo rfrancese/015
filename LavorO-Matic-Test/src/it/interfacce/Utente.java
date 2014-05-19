@@ -24,13 +24,14 @@ public class Utente implements Serializable{
 	private boolean amministratore;
 	
 	
-	public Utente(String n,String c,String e, String p,int i,boolean amm)
+	public Utente(String n,String c,String e, String p,int i,int ia,boolean amm)
 	{
 		nome=n;
 		cognome=c;
 		email=e;
 		password=p;
 		id=i;
+		idAzienda=ia;
 		amministratore=amm;
 	}
 	

@@ -8,16 +8,22 @@ public class Lavoro implements Serializable {
 	private int percentuale;
 	private String nome;
 	private String descrizione;
+	private String indirizzo;
 	private int id;
 	
-	public Lavoro(int i,int p, String n, String d)
+	public Lavoro(int i,int p, String n, String d,String in)
 	{
 		id = i;
 		percentuale=p;
 		nome=n;
 		descrizione=d;
+		indirizzo=in;
 	}
 	
+	public String getIndirizzo() {
+		return indirizzo;
+	}
+
 	public int getPercentuale()
 	{
 		return percentuale;

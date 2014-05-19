@@ -1004,12 +1004,15 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f050016;
         public static final int action_menu_presenter=0x7f050017;
         public static final int action_mode_close_button=0x7f050024;
-        public static final int action_settings=0x7f050044;
+        public static final int action_settings=0x7f050050;
         public static final int activity_chooser_view_content=0x7f050025;
         public static final int always=0x7f05000b;
         public static final int beginning=0x7f050011;
+        public static final int caricamento1=0x7f05004c;
+        public static final int caricamento2=0x7f05004f;
         public static final int checkbox=0x7f05002d;
         public static final int collapseActionView=0x7f05000d;
+        public static final int container=0x7f050043;
         public static final int default_activity_button=0x7f050028;
         public static final int dialog=0x7f05000e;
         public static final int disableHome=0x7f050008;
@@ -1027,6 +1030,8 @@ containing a value of this type.
         public static final int icon=0x7f05002a;
         public static final int ifRoom=0x7f05000a;
         public static final int image=0x7f050027;
+        public static final int list1=0x7f05004b;
+        public static final int list2=0x7f05004e;
         public static final int listMode=0x7f050001;
         public static final int list_item=0x7f050029;
         public static final int middle=0x7f050012;
@@ -1035,6 +1040,7 @@ containing a value of this type.
         public static final int normal=0x7f050000;
         public static final int pager=0x7f05003c;
         public static final int password_login=0x7f050040;
+        public static final int progressBar1=0x7f05004d;
         public static final int progress_circular=0x7f050018;
         public static final int progress_horizontal=0x7f050019;
         public static final int radio=0x7f05002f;
@@ -1048,7 +1054,13 @@ containing a value of this type.
         public static final int search_plate=0x7f050036;
         public static final int search_src_text=0x7f050037;
         public static final int search_voice_btn=0x7f05003b;
-        public static final int section_label=0x7f050043;
+        public static final int see_Mappa=0x7f050048;
+        public static final int see_caricamento=0x7f050046;
+        public static final int see_descrizione=0x7f050049;
+        public static final int see_indirizzo=0x7f050045;
+        public static final int see_nome=0x7f050044;
+        public static final int see_progresso=0x7f050047;
+        public static final int see_testo_progresso=0x7f05004a;
         public static final int shortcut=0x7f05002e;
         public static final int showCustom=0x7f050007;
         public static final int showHome=0x7f050004;
@@ -1113,14 +1125,17 @@ containing a value of this type.
         public static final int abc_search_dropdown_item_icons_2line=0x7f030015;
         public static final int abc_search_view=0x7f030016;
         public static final int activity_home_page_amm=0x7f030017;
-        public static final int activity_home_page_amm2=0x7f030018;
-        public static final int activity_loading=0x7f030019;
-        public static final int fragment_home_page_amm=0x7f03001a;
-        public static final int fragment_home_page_amm2=0x7f03001b;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001c;
+        public static final int activity_loading=0x7f030018;
+        public static final int activity_see_job=0x7f030019;
+        public static final int fragment_see_job=0x7f03001a;
+        public static final int home_page_amm1=0x7f03001b;
+        public static final int home_page_amm2=0x7f03001c;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001d;
     }
     public static final class menu {
         public static final int home_page_amm=0x7f0c0000;
+        public static final int see_job=0x7f0c0001;
+        public static final int see_work=0x7f0c0002;
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
@@ -1164,22 +1179,17 @@ containing a value of this type.
          */
         public static final int abc_shareactionprovider_share_with_application=0x7f0a000b;
         public static final int action_aggiorna_lavori=0x7f0a0010;
-        public static final int action_settings=0x7f0a0018;
+        public static final int action_settings=0x7f0a0017;
         public static final int app_name=0x7f0a000d;
-        public static final int contentDescription_logo=0x7f0a0014;
-        public static final int dummy_button=0x7f0a0012;
-        public static final int dummy_content=0x7f0a001d;
-        public static final int effettua_login=0x7f0a0013;
-        public static final int hello_world=0x7f0a001a;
+        public static final int contentDescription_logo=0x7f0a0013;
+        public static final int effettua_login=0x7f0a0012;
         public static final int instruction_title=0x7f0a000f;
         public static final int loading_text_background=0x7f0a000e;
-        public static final int title_activity_home_page_amm=0x7f0a0015;
+        public static final int title_activity_home_page_amm=0x7f0a0014;
         public static final int title_activity_loading=0x7f0a0011;
-        public static final int title_activity_prova=0x7f0a001b;
-        public static final int title_activity_testing=0x7f0a0019;
-        public static final int title_section1=0x7f0a0016;
-        public static final int title_section2=0x7f0a0017;
-        public static final int title_section3=0x7f0a001c;
+        public static final int title_activity_see_job=0x7f0a0018;
+        public static final int title_section1=0x7f0a0015;
+        public static final int title_section2=0x7f0a0016;
     }
     public static final class style {
         /** 

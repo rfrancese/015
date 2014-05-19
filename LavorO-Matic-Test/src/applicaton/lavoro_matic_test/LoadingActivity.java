@@ -1,9 +1,11 @@
 package applicaton.lavoro_matic_test;
 
+import it.connessioni.Login;
+import it.interfacce.Utente;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import it.connessioni.Login;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
@@ -166,7 +168,18 @@ public class LoadingActivity extends Activity {
 		
 		try {
 			JSONObject me = new JSONObject(result);
+			String nome,cognome,email,password;
+			int idUtente,idAzienda;
+			nome = me.getString("nome");
+			cognome = me.getString("cognome");
+			email = me.getString("email");
+			password = me.getString("password");
+			idUtente = me.getInt("idUtente");
+			idAzienda = me.getInt("idAzienda");
+			
+			Utente mySelf = new Utente(nome,cognome,email,password,idUtente,idAzienda,Boolean.valueOf(me.getString("amministratore")));
 			Intent intent = new Intent(this,HomePage_amm.class);
+			intent.putExtra("mySelf_utente", mySelf);
 			startActivity(intent);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block

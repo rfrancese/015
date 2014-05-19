@@ -60,7 +60,7 @@ public class CaricaDipendenti extends AsyncTask<String, String, String>{
 	
 	protected void onPostExecute(String result) {
         super.onPostExecute(result);
-//        home.caricaLavori(result);
+        home.caricaDipendenti(result);
         
 	}
 }

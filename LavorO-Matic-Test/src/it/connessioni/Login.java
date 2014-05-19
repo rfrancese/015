@@ -57,6 +57,9 @@ public class Login extends AsyncTask<String, String, String> {
             //TODO Handle problems..
         } catch (IOException e) {
             //TODO Handle problems..
+        }catch(Exception e)
+        {
+        	
         }
         
         return responseString;
