@@ -42,6 +42,54 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="applicaton.lavoro_matic_test.HomePage_amm" />
         </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.ModifyJob"
+            android:label="@string/title_activity_modify_job"
+            android:parentActivityName="applicaton.lavoro_matic_test.SeeJob" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.SeeJob" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.VisualizzaDipendente"
+            android:label="@string/title_activity_visualizza_dipendente"
+            android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.HomePage_amm" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.AggiungiDipendente"
+            android:label="@string/title_activity_aggiungi_dipendente"
+            android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.HomePage_amm" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.ModificaDipendente"
+            android:label="@string/title_activity_modifica_dipendente"
+            android:parentActivityName="applicaton.lavoro_matic_test.VisualizzaDipendente" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.VisualizzaDipendente" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.AggiungiLavoro"
+            android:label="@string/title_activity_aggiungi_lavoro"
+            android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.HomePage_amm" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.Impostazioni"
+            android:label="@string/title_activity_impostazioni"
+            android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.HomePage_amm" />
+        </activity>
     </application>
 
 </manifest>

@@ -13,5 +13,21 @@
     <string name="title_section2">Dipendenti</string>
     <string name="action_settings">Opzioni</string>
     <string name="title_activity_see_job">Job</string>
+    <string name="title_activity_modify_job">Modifica Lavoro</string>
+    <string name="nome">Nome</string>
+    <string name="descrizione">Descrizione</string>
+    <string name="indirizzo">Indirizzo</string>
+    <string name="cognome">Cognome</string>
+    <string name="email">Email</string>
+    <string name="ruolo">Ruolo</string>
+    <string name="title_activity_visualizza_dipendente">Dipendente</string>
+    <string name="unknow">Unknow</string>
+    <string name="title_activity_aggiungi_dipendente">Aggiungi Dipendente</string>
+    <string name="password">Password</string>
+    <string name="title_activity_modifica_dipendente">Modifica Dipendente</string>
+    <string name="modifica">Modifica</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_aggiungi_lavoro">Aggiungi Lavoro</string>
+    <string name="title_activity_impostazioni">Impostazioni</string>
 
 </resources>

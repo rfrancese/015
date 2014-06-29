@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import applicaton.lavoro_matic_test.util.SystemUiHider;
@@ -180,6 +181,8 @@ public class LoadingActivity extends Activity {
 			Utente mySelf = new Utente(nome,cognome,email,password,idUtente,idAzienda,Boolean.valueOf(me.getString("amministratore")));
 			Intent intent = new Intent(this,HomePage_amm.class);
 			intent.putExtra("mySelf_utente", mySelf);
+			Button dumpy = (Button)findViewById(R.id.dummy_button);
+			dumpy.setEnabled(true);
 			startActivity(intent);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -189,6 +192,8 @@ public class LoadingActivity extends Activity {
 	
 	public void doIntent(View view)
 	{
+		Button dumpy = (Button)findViewById(R.id.dummy_button);
+		dumpy.setEnabled(false);
 		EditText temp = (EditText) findViewById(R.id.edit_email_login);
 		String email = temp.getText().toString();
 		temp = (EditText) findViewById(R.id.password_login);

@@ -51,7 +51,7 @@ public class Login extends AsyncTask<String, String, String> {
             } else{
                 //Closes the connection.
                 response.getEntity().getContent().close();
-                throw new IOException(statusLine.getReasonPhrase());
+                
             }
         } catch (ClientProtocolException e) {
             //TODO Handle problems..

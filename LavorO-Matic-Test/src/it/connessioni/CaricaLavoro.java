@@ -17,11 +17,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.os.AsyncTask;
+import applicaton.lavoro_matic_test.ModifyJob;
 import applicaton.lavoro_matic_test.SeeJob;
 
 public class CaricaLavoro extends AsyncTask<String, String, String>{
 	
 	private static SeeJob see;
+	private static ModifyJob modify;
 	public CaricaLavoro(SeeJob see)
 	{
 		this.see = see;
@@ -48,7 +50,7 @@ public class CaricaLavoro extends AsyncTask<String, String, String>{
             } else{
                 //Closes the connection.
                 response.getEntity().getContent().close();
-                throw new IOException(statusLine.getReasonPhrase());
+                
             }
         } catch (ClientProtocolException e) {
             //TODO Handle problems..
@@ -61,7 +63,10 @@ public class CaricaLavoro extends AsyncTask<String, String, String>{
 	
 	protected void onPostExecute(String result) {
         super.onPostExecute(result);
+        
         see.caricaLavoro(result);
+        
+        
         
 	} 
 

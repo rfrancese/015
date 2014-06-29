@@ -5,7 +5,7 @@ import it.connessioni.CaricaLavori;
 import it.interfacce.Impiegato;
 import it.interfacce.Lavoro;
 import it.interfacce.Utente;
-import it.listeners.Cancella;
+import it.listeners.StartSeeEmploye;
 import it.listeners.StartSeeJob;
 
 import java.util.ArrayList;
@@ -15,8 +15,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ActionBar.LayoutParams;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -29,7 +29,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -37,7 +36,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class HomePage_amm extends ActionBarActivity implements
-		ActionBar.TabListener {
+ActionBar.TabListener {
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -51,7 +50,10 @@ public class HomePage_amm extends ActionBarActivity implements
 	private static ArrayList<Lavoro> lavori;
 	private static ArrayList<Impiegato> dipendenti;
 	private static Lavoro lavoro;
-	private static boolean started=false;
+	private static boolean started=false,adding=false;
+	private static AsyncTask<String, String, String> task,task2;
+	private static Menu menu;
+	private static HomePage_amm meStesso;
 
 	/**
 	 * The {@link ViewPager} that will host the section contents.
@@ -59,17 +61,30 @@ public class HomePage_amm extends ActionBarActivity implements
 	ViewPager mViewPager;
 
 	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+		if(task!=null && task.getStatus() != AsyncTask.Status.FINISHED)
+		{
+			task.cancel(true);
+		}
+		if(task2!=null && task.getStatus() != AsyncTask.Status.FINISHED)
+			task2.cancel(true);
+	}
+
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_home_page_amm);
+		meStesso=this;
 		if(!started){
-		Intent intent = getIntent();
-		mySelf=(Utente)intent.getSerializableExtra("mySelf_utente");
-		started=true;}
-		new CaricaLavori(this).execute("http://lavoromatic.altervista.org/getWorks.php",""+mySelf.getIdAzienda());
-		new CaricaDipendenti(this).execute("http://lavoromatic.altervista.org/getDipendenti.php",""+mySelf.getIdAzienda());
-		
-		
+			Intent intent = getIntent();
+			mySelf=(Utente)intent.getSerializableExtra("mySelf_utente");
+			started=true;}
+		task= new CaricaLavori(this).execute("http://lavoromatic.altervista.org/getWorks.php",""+mySelf.getIdAzienda());
+		task2= new CaricaDipendenti(this).execute("http://lavoromatic.altervista.org/getDipendenti.php",""+mySelf.getIdAzienda());
+
+
 		// Set up the action bar.
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -87,12 +102,12 @@ public class HomePage_amm extends ActionBarActivity implements
 		// tab. We can also use ActionBar.Tab#select() to do this if we have
 		// a reference to the Tab.
 		mViewPager
-				.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-					@Override
-					public void onPageSelected(int position) {
-						actionBar.setSelectedNavigationItem(position);
-					}
-				});
+		.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+			@Override
+			public void onPageSelected(int position) {
+				actionBar.setSelectedNavigationItem(position);
+			}
+		});
 
 		// For each of the sections in the app, add a tab to the action bar.
 		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -105,14 +120,15 @@ public class HomePage_amm extends ActionBarActivity implements
 					.setTabListener(this));
 		}
 	}
-	
-	
+
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.home_page_amm, menu);
+		this.menu=menu;
 		return true;
 	}
 
@@ -122,8 +138,26 @@ public class HomePage_amm extends ActionBarActivity implements
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		if (id == R.id.action_aggiungiDipendente) {
+			Intent intent = new Intent(this,AggiungiDipendente.class);
+			intent.putExtra("IDAZIENDA", mySelf.getIdAzienda());
+			intent.putExtra("UTENTE", mySelf);
+			startActivity(intent);
+
 			return true;
+		}
+		else if(id == R.id.action_aggiungiLavoro)
+		{
+			Intent intent = new Intent(this,AggiungiLavoro.class);
+			intent.putExtra("IDAZIENDA",mySelf.getIdAzienda());
+			intent.putExtra("UTENTE", mySelf);
+			startActivity(intent);
+		}
+		else if(id == R.id.action_Opzioni)
+		{
+			Intent intent = new Intent(this,Impostazioni.class);
+			intent.putExtra("IDUTENTE", mySelf.getId());
+			startActivity(intent);
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -133,7 +167,24 @@ public class HomePage_amm extends ActionBarActivity implements
 			FragmentTransaction fragmentTransaction) {
 		// When the given tab is selected, switch to the corresponding page in
 		// the ViewPager.
+
+
+		if(menu!=null && tab.getPosition()==1){
+			MenuItem item = menu.findItem(R.id.action_aggiungiDipendente);
+			item.setVisible(true);
+			item = menu.findItem(R.id.action_aggiungiLavoro);
+			item.setVisible(false);
+		}
+		else
+			if(menu!=null && tab.getPosition()==0)
+			{
+				MenuItem item = menu.findItem(R.id.action_aggiungiDipendente);
+				item.setVisible(false);
+				item = menu.findItem(R.id.action_aggiungiLavoro);
+				item.setVisible(true);
+			}
 		mViewPager.setCurrentItem(tab.getPosition());
+
 	}
 
 	@Override
@@ -212,28 +263,30 @@ public class HomePage_amm extends ActionBarActivity implements
 				Bundle savedInstanceState) {
 			View rootView = null;
 			if(getArguments().getInt(ARG_SECTION_NUMBER)==1)
-				{
+			{
 				rootView=inflater.inflate(R.layout.home_page_amm1,container, false);
-				}
+			}
 			else
 			{
 				rootView=inflater.inflate(R.layout.home_page_amm2,container, false);
 			}		
-			
+
 			return rootView;
 		}
-		
-		public void prova(View view)
-		{
-			Toast.makeText(view.getContext(), "funge", Toast.LENGTH_SHORT).show();
-		}
+
+
 	}
-	
+	public void Cancellato(String msg)
+	{
+		Toast.makeText(mViewPager.getContext(), msg, Toast.LENGTH_SHORT).show();
+	}
+
 	public void caricaLavori(String result)
 	{
 		lavori = new ArrayList<Lavoro>();
 		try {
 			ArrayList<Button> bottoni = new ArrayList<Button>();
+			ArrayList<LinearLayout> ll = new ArrayList<LinearLayout>();
 			LinearLayout layout = (LinearLayout)mViewPager.findViewById(R.id.list1);
 			JSONArray array = new JSONArray(result);
 			int num = array.length();
@@ -245,55 +298,67 @@ public class HomePage_amm extends ActionBarActivity implements
 				Button bottone = new Button(mViewPager.getContext());
 				String tasto = ""+lavoro.getId()+". "+lavoro.getNome();
 				bottone.setText(tasto);
-				bottone.setWidth(LayoutParams.MATCH_PARENT);
-				
-				StartSeeJob listener = new StartSeeJob(this, lavoro.getId());
+
+
+
+				LinearLayout linear = new LinearLayout(mViewPager.getContext());
+
+
+
+
+				StartSeeJob listener = new StartSeeJob(this, lavoro.getId(),mySelf);
 				bottone.setOnClickListener(listener);
-				bottoni.add(bottone);
+
+				linear.addView(bottone);
+
+				linear.setPadding(4, 4, 4, 4);
+				ll.add(linear);
+
 			}
 			RelativeLayout caricamento = (RelativeLayout)mViewPager.findViewById(R.id.caricamento1);
 			layout.removeView(caricamento);
-			num = bottoni.size();
+			num = ll.size();
 			for(int i=0;i<num;i++)
 			{
-				layout.addView(bottoni.get(i));
+				layout.addView(ll.get(i));
 			}
-			
+
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
-			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+		} catch (Exception e)
+		{
+
 		}
 	}
-	
+
 	public void caricaDipendenti(String result)
 	{
 		dipendenti = new ArrayList<Impiegato>();
+		Button bottone;
+		StartSeeEmploye start;
 		ArrayList<LinearLayout> ll = new ArrayList<LinearLayout>();
-		ArrayList<Button> bottoni = new ArrayList<Button>();
-		ArrayList<Button> bottoni_canc = new ArrayList<Button>();
 		try {
 			LinearLayout layout = (LinearLayout) mViewPager.findViewById(R.id.list2);
 			JSONArray array = new JSONArray(result);
 			int num= array.length();
-			
+
 			for(int i=0;i<num;i++)
 			{
 				JSONObject temp = array.getJSONObject(i);
-				Button bottone = new Button(mViewPager.getContext());
-				bottone.setText(""+temp.getInt("idUtente")+". "+temp.getString("Ruolo")+": "+temp.getString("Nome")+" "+temp.getString("Cognome"));
-				Button bottone_canc = new Button(mViewPager.getContext());
-				bottone_canc.setText("cancella");
-				
 				LinearLayout linear = new LinearLayout(mViewPager.getContext());
-				
+
 				linear.setOrientation(LinearLayout.HORIZONTAL);
-				Cancella listener = new Cancella(layout,linear);
-				bottone_canc.setOnClickListener(listener);
+				bottone = new Button(mViewPager.getContext());
+				bottone.setText(""+temp.getInt("idUtente")+". "+temp.getString("Ruolo")+": "+temp.getString("Nome")+" "+temp.getString("Cognome"));
+//				Toast.makeText(getApplicationContext(), "creo un listener con id "+temp.getInt("idUtente"), Toast.LENGTH_SHORT).show();
+				start = new StartSeeEmploye(this, temp.getInt("idUtente"),mySelf);
+				bottone.setOnClickListener(start);
+
+
+				
+
 				linear.addView(bottone);
-				linear.addView(bottone_canc);
+
 				ll.add(linear);
 			}
 			RelativeLayout caricamento = (RelativeLayout)mViewPager.findViewById(R.id.caricamento2);
@@ -308,7 +373,11 @@ public class HomePage_amm extends ActionBarActivity implements
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
+
+
+
+
 
 }

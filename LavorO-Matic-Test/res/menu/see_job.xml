@@ -4,9 +4,10 @@
     tools:context="applicaton.lavoro_matic_test.SeeJob" >
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/cancella_lavoro"
         android:orderInCategory="100"
+        android:icon="@drawable/ic_action_cancel"
         android:title="@string/action_settings"
-        app:showAsAction="never"/>
+        app:showAsAction="always"/>
 
 </menu>
