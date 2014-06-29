@@ -81,6 +81,7 @@ ActionBar.TabListener {
 			Intent intent = getIntent();
 			mySelf=(Utente)intent.getSerializableExtra("mySelf_utente");
 			started=true;}
+		
 		task= new CaricaLavori(this).execute("http://lavoromatic.altervista.org/getWorks.php",""+mySelf.getIdAzienda());
 		task2= new CaricaDipendenti(this).execute("http://lavoromatic.altervista.org/getDipendenti.php",""+mySelf.getIdAzienda());
 

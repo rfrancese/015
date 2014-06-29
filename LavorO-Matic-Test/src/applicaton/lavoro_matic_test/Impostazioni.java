@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.os.Build;
 
 public class Impostazioni extends ActionBarActivity {
@@ -33,18 +34,20 @@ public class Impostazioni extends ActionBarActivity {
 		super.onDestroy();
 		if(task!=null && task.getStatus()!=AsyncTask.Status.FINISHED)
 			task.cancel(true);
+		started=false;
 	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_impostazioni);
-		
+
 		if(!started)
 		{
 			Intent intent = getIntent();
-			idUtente = intent.getExtras().getInt("IDDIPENDENTE");
+			idUtente = intent.getExtras().getInt("IDUTENTE");
 			started=true;
 		}
+
 		task=new CaricaMySelf(this).execute("http://lavoromatic.altervista.org/getMySelf.php",""+idUtente);
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -92,6 +95,7 @@ public class Impostazioni extends ActionBarActivity {
 	public void caricato(String result)
 	{
 		try{
+
 			JSONObject temp = new JSONObject(result);
 			TextView nome,cognome,email;
 
@@ -111,10 +115,10 @@ public class Impostazioni extends ActionBarActivity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void modifica(View view)
 	{
-		
+
 	}
 
 }
