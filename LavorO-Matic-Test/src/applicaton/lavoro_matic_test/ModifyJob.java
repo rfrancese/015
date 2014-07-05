@@ -31,6 +31,8 @@ public class ModifyJob extends ActionBarActivity {
 	private static AsyncTask<String, String, String> task,task2;
 
 
+	
+	
 	protected void onDestroy()
 	{
 		super.onDestroy();
@@ -49,6 +51,13 @@ public class ModifyJob extends ActionBarActivity {
 			Intent intent = getIntent();
 			idLavoro = intent.getIntExtra("IDLAVORO", -1);
 			started=true;
+		}
+		else
+		{
+			Intent intent = getIntent();
+			int temp = intent.getIntExtra("IDLAVORO", -1);
+			if(temp!=-1 && temp!=idLavoro)
+				idLavoro=temp;
 		}
 		task=new CaricaModificaLavoro(this).execute("http://lavoromatic.altervista.org/getLavoro.php",""+idLavoro);
 

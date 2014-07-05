@@ -34,7 +34,7 @@ public class Impostazioni extends ActionBarActivity {
 		super.onDestroy();
 		if(task!=null && task.getStatus()!=AsyncTask.Status.FINISHED)
 			task.cancel(true);
-		started=false;
+		
 	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +118,13 @@ public class Impostazioni extends ActionBarActivity {
 
 	public void modifica(View view)
 	{
-
+		Button bottone =(Button)findViewById(R.id.button1);
+		bottone.setEnabled(false);
+		Intent intent = new Intent(this,ModificaImpostazioni.class);
+		intent.putExtra("IDUTENTE", idUtente);
+		startActivity(intent);
+		bottone.setEnabled(true);
+		
 	}
 
 }

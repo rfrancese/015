@@ -26,8 +26,17 @@
     <string name="password">Password</string>
     <string name="title_activity_modifica_dipendente">Modifica Dipendente</string>
     <string name="modifica">Modifica</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="lavori_assegnati">Lavori Assegnati</string>
     <string name="title_activity_aggiungi_lavoro">Aggiungi Lavoro</string>
     <string name="title_activity_impostazioni">Impostazioni</string>
+    <string name="title_activity_modifica_impostazioni">Modifica Impostazioni</string>
+    <string name="title_activity_assegna_dipendenti">AssegnaDipendenti</string>
+    <string name="title_activity_revoca_dipendenti">Revoca Dipendenti</string>
+    <string name="title_activity_visualizza_dipendenti_assegnati">Visualizza Dipendenti Assegnati</string>
+    <string name="title_activity_gestione_commenti">Gestione Commenti</string>
+    <string name="title_activity_home_page_dip">LavorO-Matic</string>
+    <string name="title_activity_see_job_dip">Visualizza Lavoro</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_gestione_commenti_dipendente">Commenti Lavoro</string>
 
 </resources>

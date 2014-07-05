@@ -3,6 +3,7 @@ package applicaton.lavoro_matic_test;
 import it.connessioni.CancellaLavoro;
 import it.connessioni.CaricaLavoro;
 import it.interfacce.Lavoro;
+import it.interfacce.Utente;
 import it.listeners.StartModifyJob;
 
 import org.json.JSONException;
@@ -31,6 +32,7 @@ public class SeeJob extends ActionBarActivity {
 	private static int idLavoro;
 	private static boolean started = false;
 	private static Lavoro lavoro;
+	private static Utente mySelf;
 	private static AsyncTask<String, String, String> task,task2;
 	@Override
 	protected void onDestroy()
@@ -40,8 +42,7 @@ public class SeeJob extends ActionBarActivity {
 			task.cancel(true);
 		if(task2!=null && task2.getStatus() != AsyncTask.Status.FINISHED)
 			task2.cancel(true);
-		
-		started=false;
+			
 	}
 	
 
@@ -55,7 +56,16 @@ public class SeeJob extends ActionBarActivity {
 		if(!started){
 			Intent intent = getIntent();
 			idLavoro = intent.getIntExtra("LavoroID", -1);
+			mySelf =(Utente) intent.getSerializableExtra("mySelf_utente");
 			started=true;
+		}
+		else
+		{
+			int temp = getIntent().getIntExtra("LavoroID", -1);
+			if(temp!=-1 && temp!=idLavoro){
+				idLavoro=temp;
+				mySelf =(Utente) getIntent().getSerializableExtra("mySelf_utente");
+			}
 		}
 		task.execute("http://lavoromatic.altervista.org/getLavoro.php",""+idLavoro);
 
@@ -167,6 +177,41 @@ public class SeeJob extends ActionBarActivity {
 		Intent intent = new Intent(this,HomePage_amm.class);
 		intent.putExtra("mySelf_utente", getIntent().getExtras().getSerializable("mySelf_utente"));
 		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+		startActivity(intent);
+	}
+	
+	public void doAssegna(View view)
+	{
+		Intent intent = new Intent(this,AssegnaDipendenti.class);
+		intent.putExtra("LavoroID", idLavoro);
+		intent.putExtra("IDAZIENDA", mySelf.getIdAzienda());
+		intent.putExtra("NOMELAVORO", lavoro.getNome());
+		startActivity(intent);
+	}
+	public void doRevoca(View view)
+	{
+		Intent intent = new Intent(this,RevocaDipendenti.class);
+		intent.putExtra("LavoroID", idLavoro);
+		intent.putExtra("IDAZIENDA", mySelf.getIdAzienda());
+		intent.putExtra("NOMELAVORO", lavoro.getNome());
+		startActivity(intent);
+	}
+	
+	public void visualizzaAssegnati(View view)
+	{
+		Intent intent = new Intent(this,VisualizzaDipendentiAssegnati.class);
+		intent.putExtra("LavoroID", idLavoro);
+		intent.putExtra("IDAZIENDA", mySelf.getIdAzienda());
+		intent.putExtra("NOMELAVORO", lavoro.getNome());
+		startActivity(intent);
+	}
+	
+	public void doCommenti(View view)
+	{
+		Intent intent = new Intent(this,GestioneCommenti.class);
+		intent.putExtra("LavoroID", idLavoro);
+		intent.putExtra("mySelf_utente", mySelf);
+		intent.putExtra("NOMELAVORO", lavoro.getNome());
 		startActivity(intent);
 	}
 }

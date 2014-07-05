@@ -36,6 +36,7 @@
         </activity>
         <activity
             android:name="applicaton.lavoro_matic_test.SeeJob"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_see_job"
             android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
             <meta-data
@@ -44,6 +45,7 @@
         </activity>
         <activity
             android:name="applicaton.lavoro_matic_test.ModifyJob"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_modify_job"
             android:parentActivityName="applicaton.lavoro_matic_test.SeeJob" >
             <meta-data
@@ -52,6 +54,7 @@
         </activity>
         <activity
             android:name="applicaton.lavoro_matic_test.VisualizzaDipendente"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_visualizza_dipendente"
             android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
             <meta-data
@@ -60,6 +63,7 @@
         </activity>
         <activity
             android:name="applicaton.lavoro_matic_test.AggiungiDipendente"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_aggiungi_dipendente"
             android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
             <meta-data
@@ -68,6 +72,7 @@
         </activity>
         <activity
             android:name="applicaton.lavoro_matic_test.ModificaDipendente"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_modifica_dipendente"
             android:parentActivityName="applicaton.lavoro_matic_test.VisualizzaDipendente" >
             <meta-data
@@ -76,6 +81,7 @@
         </activity>
         <activity
             android:name="applicaton.lavoro_matic_test.AggiungiLavoro"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_aggiungi_lavoro"
             android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
             <meta-data
@@ -84,11 +90,80 @@
         </activity>
         <activity
             android:name="applicaton.lavoro_matic_test.Impostazioni"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_impostazioni"
             android:parentActivityName="applicaton.lavoro_matic_test.HomePage_amm" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="applicaton.lavoro_matic_test.HomePage_amm" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.ModificaImpostazioni"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_modifica_impostazioni"
+            android:parentActivityName="applicaton.lavoro_matic_test.Impostazioni" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.Impostazioni" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.AssegnaDipendenti"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_assegna_dipendenti"
+            android:parentActivityName="applicaton.lavoro_matic_test.SeeJob" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.SeeJob" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.RevocaDipendenti"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_revoca_dipendenti"
+            android:parentActivityName="applicaton.lavoro_matic_test.SeeJob" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.SeeJob" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.VisualizzaDipendentiAssegnati"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_visualizza_dipendenti_assegnati"
+            android:parentActivityName="applicaton.lavoro_matic_test.SeeJob" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.SeeJob" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.GestioneCommenti"
+            android:label="@string/title_activity_gestione_commenti"
+            android:parentActivityName="applicaton.lavoro_matic_test.SeeJob" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.SeeJob" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.HomePage_dip"
+            android:label="@string/title_activity_home_page_dip"
+            android:parentActivityName="applicaton.lavoro_matic_test.LoadingActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.LoadingActivity" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.SeeJob_dip"
+            android:label="@string/title_activity_see_job_dip"
+            android:parentActivityName="applicaton.lavoro_matic_test.HomePage_dip" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.HomePage_dip" />
+        </activity>
+        <activity
+            android:name="applicaton.lavoro_matic_test.GestioneCommentiDipendente"
+            android:label="@string/title_activity_gestione_commenti_dipendente"
+            android:parentActivityName="applicaton.lavoro_matic_test.SeeJob_dip" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="applicaton.lavoro_matic_test.SeeJob_dip" />
         </activity>
     </application>
 

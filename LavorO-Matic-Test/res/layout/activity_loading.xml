@@ -68,6 +68,15 @@
                 android:layout_weight="1"
                 android:onClick="doIntent"
                 android:text="@string/effettua_login" />
+            <Button
+                android:id="@+id/registra"
+                style="?metaButtonBarButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:onClick="doRegistra"
+                android:text="registra la tua azienda" />
+           
         </LinearLayout>
 
     </FrameLayout>
@@ -82,5 +91,7 @@
         android:textColor="#33b5e5"
         android:textSize="15sp"
         android:textStyle="bold"/>
+
+    
 
 </RelativeLayout>

@@ -48,6 +48,13 @@ public class ModificaDipendente extends ActionBarActivity {
 			idUtente = intent.getExtras().getInt("IDUTENTE");
 			started=true;
 		}
+		else
+		{
+			Intent intent = getIntent();
+			int temp = intent.getIntExtra("IDUTENTE", -1);
+			if(temp!=-1 && temp != idUtente)
+				idUtente=temp;
+		}
 		task.execute("http://lavoromatic.altervista.org/getDipendente.php",""+idUtente);
 
 		if (savedInstanceState == null) {

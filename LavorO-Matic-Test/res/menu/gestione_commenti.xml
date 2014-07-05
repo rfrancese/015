@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="applicaton.lavoro_matic_test.GestioneCommenti" >
+
+    <item
+        android:id="@+id/aggiungi_commento"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_action_new"
+        android:title="aggiungi commento"
+        app:showAsAction="always"/>
+
+</menu>

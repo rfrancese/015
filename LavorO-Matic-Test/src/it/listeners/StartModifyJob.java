@@ -1,5 +1,6 @@
 package it.listeners;
 
+import it.interfacce.Utente;
 import android.content.Intent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,10 +12,12 @@ public class StartModifyJob implements OnClickListener {
 	private static int idLavoro;
 	private static SeeJob see;
 
+
 	public StartModifyJob(int idLavoro,SeeJob see)
 	{
 		this.idLavoro=idLavoro;
 		this.see=see;
+
 	}
 
 	public void onClick(View arg0) {

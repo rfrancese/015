@@ -1,6 +1,8 @@
 package applicaton.lavoro_matic_test;
 
 import it.connessioni.Login;
+import it.connessioni.RegistraAzienda;
+import it.interfacce.Impiegato;
 import it.interfacce.Utente;
 
 import org.json.JSONException;
@@ -8,10 +10,16 @@ import org.json.JSONObject;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +34,8 @@ import applicaton.lavoro_matic_test.util.SystemUiHider;
  * @see SystemUiHider
  */
 public class LoadingActivity extends Activity {
+	private static AsyncTask<String, String, String> task,task2;
+	private static LoadingActivity meStesso;
 	/**
 	 * Whether or not the system UI should be auto-hidden after
 	 * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -54,12 +64,14 @@ public class LoadingActivity extends Activity {
 	 */
 	private SystemUiHider mSystemUiHider;
 
-	@Override
+	
+	
+	
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_loading);
-
+		meStesso = this;
 		final View controlsView = findViewById(R.id.fullscreen_content_controls);
 		final View contentView = findViewById(R.id.fullscreen_content);
 
@@ -171,22 +183,37 @@ public class LoadingActivity extends Activity {
 			JSONObject me = new JSONObject(result);
 			String nome,cognome,email,password;
 			int idUtente,idAzienda;
-			nome = me.getString("nome");
-			cognome = me.getString("cognome");
-			email = me.getString("email");
-			password = me.getString("password");
+			nome = me.getString("Nome");
+			cognome = me.getString("Cognome");
+			email = me.getString("Email");
+			password = me.getString("Password");
 			idUtente = me.getInt("idUtente");
 			idAzienda = me.getInt("idAzienda");
+			int amministratore = me.getInt("Amministratore");
 			
-			Utente mySelf = new Utente(nome,cognome,email,password,idUtente,idAzienda,Boolean.valueOf(me.getString("amministratore")));
+			Utente mySelf = new Utente(nome,cognome,email,password,idUtente,idAzienda,Boolean.valueOf(me.getString("Amministratore")));
+			if(amministratore == 1){
 			Intent intent = new Intent(this,HomePage_amm.class);
 			intent.putExtra("mySelf_utente", mySelf);
 			Button dumpy = (Button)findViewById(R.id.dummy_button);
 			dumpy.setEnabled(true);
 			startActivity(intent);
+			}
+			else
+			{
+				Impiegato impiegato = new Impiegato(mySelf.getNome(),mySelf.getCognome(),mySelf.getEmail(),mySelf.getPassword(),mySelf.getId(),mySelf.getIdAzienda(),me.getString("Ruolo"));
+				Intent intent = new Intent(this,HomePage_dip.class);
+				intent.putExtra("mySelf_impiegato", impiegato);
+				Button dumpy = (Button)findViewById(R.id.dummy_button);
+				dumpy.setEnabled(true);
+				startActivity(intent);
+			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			Toast.makeText(getApplicationContext(), "Email o psw sbagliata", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+			Button dumpy = (Button)findViewById(R.id.dummy_button);
+			dumpy.setEnabled(true);
 		}
 	}
 	
@@ -198,6 +225,69 @@ public class LoadingActivity extends Activity {
 		String email = temp.getText().toString();
 		temp = (EditText) findViewById(R.id.password_login);
 		String password = temp.getText().toString();
-		new Login(this).execute("http://lavoromatic.altervista.org/login.php",email,password);
+		task=new Login(this).execute("http://lavoromatic.altervista.org/login.php",email,password);
+	}
+	
+	public void doRegistra(View view)
+	{
+		LayoutInflater inflater = getLayoutInflater();
+		new AlertDialog.Builder(this)
+		.setTitle("Aggiungi Commento")
+		.setView(inflater.inflate(R.layout.dialogregistra, null))
+		.setMessage("Scrivi il Commento da aggiungere")
+		.setPositiveButton("Registra", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Dialog dialog2 = Dialog.class.cast(dialog);
+				EditText nomeAzienda,nome,cognome,password,email;
+				nomeAzienda = (EditText)dialog2.findViewById(R.id.editTextNomeAzienda);
+				nome = (EditText)dialog2.findViewById(R.id.editTextNome);
+				cognome = (EditText)dialog2.findViewById(R.id.editTextCognome);
+				password = (EditText)dialog2.findViewById(R.id.editTextPassword);
+				email = (EditText)dialog2.findViewById(R.id.editTextEmail);
+				
+				String nameAzienda,name,surname,psw,imail;
+				nameAzienda = nomeAzienda.getText().toString();
+				name = nome.getText().toString();
+				surname = cognome.getText().toString();
+				psw = password.getText().toString();
+				imail = email.getText().toString();
+				
+				if(nameAzienda.length()>0 && name.length()>0 && surname.length()>0 && psw.length()>0 && imail.length()>0 )
+				{
+					if(imail.contains("@"))
+					{
+						task2= new RegistraAzienda(meStesso).execute("http://lavoromatic.altervista.org/registraAzienda.php",nameAzienda,name,surname,imail,psw);
+						Button dummy = (Button) findViewById(R.id.dummy_button);
+						dummy.setEnabled(false);
+					}
+					else
+					{
+						Toast.makeText(getApplicationContext(), "Email non valida", Toast.LENGTH_LONG).show();
+					}
+				}
+				else
+					Toast.makeText(getApplicationContext(), "Nessun campo dev'essere vuoto", Toast.LENGTH_LONG).show();
+				
+
+			}
+		})
+		.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+
+
+			}
+		})
+		.show();
+	}
+	
+	public void registrazioneEffettuata(String result)
+	{
+		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+		Button dummy = (Button) findViewById(R.id.dummy_button);
+		dummy.setEnabled(true);
 	}
 }

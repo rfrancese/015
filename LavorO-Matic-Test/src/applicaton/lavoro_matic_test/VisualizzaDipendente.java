@@ -26,36 +26,43 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class VisualizzaDipendente extends ActionBarActivity {
-	
+
 	private static boolean started = false;
 	private static int idUtente;
 	private static AsyncTask<String, String, String> task,task2;
-	
+
 	@Override
 	protected void onDestroy()
 	{
 		super.onDestroy();
 		if(task!=null && task.getStatus()!= AsyncTask.Status.FINISHED)
 			task.cancel(true);
-		started=false;
+		
 	}
-	
-	
+
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_visualizza_dipendente);
 		task2=new CancellaDipendente(this);
 		task = new CaricaDipendente(this);
-		
+
 		if(!started){
 			Intent intent = getIntent();
 			idUtente = intent.getExtras().getInt("IDDIPENDENTE");
-			started=true;}
-			
+			started=true;
+		}
+		else
+		{
+			int temp = getIntent().getIntExtra("IDDIPENDENTE", -1);
+			if(temp!=-1 && temp!=idUtente)
+				idUtente=temp;
+		}
+
 		task.execute("http://lavoromatic.altervista.org/getDipendente.php",""+idUtente);
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
-					.add(R.id.container, new PlaceholderFragment()).commit();
+			.add(R.id.container, new PlaceholderFragment()).commit();
 		}
 	}
 
@@ -81,7 +88,7 @@ public class VisualizzaDipendente extends ActionBarActivity {
 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-				
+
 					task2.execute("http://lavoromatic.altervista.org/CancellaDipendente.php",""+idUtente);
 
 				}
@@ -116,7 +123,7 @@ public class VisualizzaDipendente extends ActionBarActivity {
 			return rootView;
 		}
 	}
-	
+
 	public void leggiDipendente(String result)
 	{
 		try{
@@ -137,19 +144,19 @@ public class VisualizzaDipendente extends ActionBarActivity {
 			ScrollView scroll = (ScrollView)findViewById(R.id.scrollView1);
 			cerchio.setVisibility(View.INVISIBLE);
 			scroll.setVisibility(View.VISIBLE);
-			
+
 		}catch(JSONException e)
 		{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void eliminato(String result)
 	{
 		Intent intent = new Intent(this,HomePage_amm.class);
 		intent.putExtra("mySelf_utente", getIntent().getExtras().getSerializable("mySelf_utente"));
 		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
 		startActivity(intent);
-		
+
 	}
 }
