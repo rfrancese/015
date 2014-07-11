@@ -17,11 +17,16 @@
 
         <TextView
             android:id="@+id/textView1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="20dp"
+            android:background="#cbcbcb"
             android:text="@string/lavori_assegnati"
             android:textAppearance="?android:attr/textAppearanceLarge" />
+        <View
+                android:layout_width="fill_parent"
+                android:layout_height="5dp"
+                android:background="#d6d6d6" />
 
         <ListView
             android:id="@+id/listViewDipendenti"

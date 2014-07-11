@@ -1,6 +1,10 @@
 package applicaton.lavoro_matic_test;
 
+import it.connessioni.CaricaLavori;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.p2p.WifiP2pManager.UpnpServiceResponseListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,7 +27,16 @@ public class AggiungiDipendente extends ActionBarActivity {
 	private static EditText nome,cognome,email,password,ruolo;
 	private static Button aggiungi;
 	private static AsyncTask<String, String, String> task;
-
+	
+	
+	public void onBackPressed()
+	{
+		super.onBackPressed();
+		Intent intent = new Intent(this,HomePage_amm.class);
+		intent.putExtra("mySelf_utente", getIntent().getSerializableExtra("UTENTE"));
+		startActivity(intent);
+	}
+	
 	protected void onDestroy()
 	{
 		super.onDestroy();
@@ -114,6 +127,12 @@ public class AggiungiDipendente extends ActionBarActivity {
 			else
 				Toast.makeText(getApplicationContext(), "Nessun campo dev'essere vuoto ", Toast.LENGTH_LONG).show();
 		}else{
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task= new it.connessioni.AggiungiDipendente(myself).execute("http://lavoromatic.altervista.org/InserisciDipendente.php",""+idAzienda,nome,cognome,email,password,ruolo);
 		aggiungi.setEnabled(false);
 		}
@@ -128,10 +147,24 @@ public class AggiungiDipendente extends ActionBarActivity {
 		this.email.setText("");
 		this.password.setText("");
 		this.ruolo.setText("");*/
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			this.aggiungi();
+		}
+		else
+		{
 		Toast.makeText(getApplicationContext(),result, Toast.LENGTH_SHORT).show();
 		Intent intent = new Intent(this,HomePage_amm.class);
 		intent.putExtra("mySelf_utente", getIntent().getExtras().getSerializable("UTENTE"));
 		startActivity(intent);
+		}
 		
 	}
 

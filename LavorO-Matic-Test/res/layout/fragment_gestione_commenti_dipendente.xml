@@ -16,10 +16,16 @@
 
         <TextView
             android:id="@+id/textViewNomeLavoro"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#cbcbcb"
+            android:paddingBottom="10dp"
             android:text=""
             android:textAppearance="?android:attr/textAppearanceMedium" />
+        <View
+                android:layout_width="fill_parent"
+                android:layout_height="5dp"
+                android:background="#d6d6d6" />
 
         <ListView
             android:id="@+id/listView1"

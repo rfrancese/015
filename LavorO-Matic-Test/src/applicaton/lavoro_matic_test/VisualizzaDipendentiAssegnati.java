@@ -1,5 +1,6 @@
 package applicaton.lavoro_matic_test;
 
+import it.connessioni.CaricaDipendente;
 import it.interfacce.Impiegato;
 import it.listeners.AdapterDipendentiAssegnati;
 
@@ -9,6 +10,9 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,8 +41,8 @@ public class VisualizzaDipendentiAssegnati extends ActionBarActivity {
 		if(task!=null && task.getStatus()!= AsyncTask.Status.FINISHED)
 			task.cancel(true);
 	}
-	
-	
+
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_visualizza_dipendenti_assegnati);
@@ -58,7 +62,15 @@ public class VisualizzaDipendentiAssegnati extends ActionBarActivity {
 				nomeLavoro=temp2;
 				idAzienda = temp3;}
 		}
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task = new it.connessioni.VisualizzaDipendentiAssegnati(this).execute("http://lavoromatic.altervista.org/getDipendentiAssegnati.php",""+idAzienda,""+idLavoro);
+
+
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -110,41 +122,53 @@ public class VisualizzaDipendentiAssegnati extends ActionBarActivity {
 	public void caricaLista(String result)
 	{
 		ListView lista =(ListView) findViewById(R.id.list);
-
-		try{
-			JSONArray array = new JSONArray(result);
-			int num = array.length();
-
-			List<Impiegato> list = new LinkedList<Impiegato>();
-			for(int i=0;i<num;i++)
-			{
-				JSONObject obj = array.getJSONObject(i);
-				Impiegato temp = new Impiegato(obj.getString("Nome"),obj.getString("Cognome"),
-						obj.getString("Email"),obj.getString("Password"),obj.getInt("idUtente"), obj.getInt("idAzienda"),obj.getString("Ruolo"));
-				list.add(temp);
-			}
-			AdapterDipendentiAssegnati adapter = new AdapterDipendentiAssegnati(this, R.layout.customrow,list);
-			lista.setAdapter(adapter);
-
-			if(num>0)
-			{
-				LinearLayout linear = (LinearLayout)findViewById(R.id.LinearAssegnati);
-				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-				cerchio.setVisibility(View.INVISIBLE);
-				linear.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				Toast.makeText(getApplicationContext(), "Nessun dipendente Assegnato", Toast.LENGTH_SHORT).show();
-				super.onBackPressed();
-			}
-
-
-		}catch(Exception e)
+		if(result==null)
 		{
-			e.printStackTrace();
-			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task = new it.connessioni.VisualizzaDipendentiAssegnati(this).execute("http://lavoromatic.altervista.org/getDipendentiAssegnati.php",""+idAzienda,""+idLavoro);
+		}
+		else{
+			try{
+				JSONArray array = new JSONArray(result);
+				int num = array.length();
 
+				List<Impiegato> list = new LinkedList<Impiegato>();
+				for(int i=0;i<num;i++)
+				{
+					JSONObject obj = array.getJSONObject(i);
+					Impiegato temp = new Impiegato(obj.getString("Nome"),obj.getString("Cognome"),
+							obj.getString("Email"),obj.getString("Password"),obj.getInt("idUtente"), obj.getInt("idAzienda"),obj.getString("Ruolo"));
+					list.add(temp);
+				}
+				AdapterDipendentiAssegnati adapter = new AdapterDipendentiAssegnati(this, R.layout.customrow,list);
+				lista.setAdapter(adapter);
+
+				if(num>0)
+				{
+					LinearLayout linear = (LinearLayout)findViewById(R.id.LinearAssegnati);
+					ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+					cerchio.setVisibility(View.INVISIBLE);
+					linear.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "Nessun dipendente Assegnato", Toast.LENGTH_SHORT).show();
+					super.onBackPressed();
+				}
+
+
+			}catch(Exception e)
+			{
+				e.printStackTrace();
+				Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+
+			}
 		}
 	}
 

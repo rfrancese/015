@@ -5,17 +5,21 @@ import it.connessioni.CaricaLavori;
 import it.interfacce.Impiegato;
 import it.interfacce.Lavoro;
 import it.interfacce.Utente;
-import it.listeners.StartSeeEmploye;
-import it.listeners.StartSeeJob;
+import it.listeners.AdapterDipendenti;
+import it.listeners.AdapterLavori;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -30,9 +34,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class HomePage_amm extends ActionBarActivity implements
@@ -47,10 +53,8 @@ ActionBar.TabListener {
 	 */
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	private static Utente mySelf;
-	private static ArrayList<Lavoro> lavori;
-	private static ArrayList<Impiegato> dipendenti;
-	private static Lavoro lavoro;
-	private static boolean started=false,adding=false;
+	
+	private static boolean started=false;
 	private static AsyncTask<String, String, String> task,task2;
 	private static Menu menu;
 	private static HomePage_amm meStesso;
@@ -80,10 +84,37 @@ ActionBar.TabListener {
 		if(!started){
 			Intent intent = getIntent();
 			mySelf=(Utente)intent.getSerializableExtra("mySelf_utente");
-			started=true;}
-		
+			started=true;
+		}
+		else
+		{
+			Intent intent = getIntent();
+			Utente temp = (Utente)intent.getSerializableExtra("mySelf_utente");
+			if(temp!=null && mySelf.getId()!=temp.getId())
+			{
+				mySelf=temp;
+			}
+
+		}
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
+
 		task= new CaricaLavori(this).execute("http://lavoromatic.altervista.org/getWorks.php",""+mySelf.getIdAzienda());
+
+
+
+		netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task2= new CaricaDipendenti(this).execute("http://lavoromatic.altervista.org/getDipendenti.php",""+mySelf.getIdAzienda());
+
+
 
 
 		// Set up the action bar.
@@ -284,94 +315,128 @@ ActionBar.TabListener {
 
 	public void caricaLavori(String result)
 	{
-		lavori = new ArrayList<Lavoro>();
-		try {
-			ArrayList<Button> bottoni = new ArrayList<Button>();
-			ArrayList<LinearLayout> ll = new ArrayList<LinearLayout>();
-			LinearLayout layout = (LinearLayout)mViewPager.findViewById(R.id.list1);
-			JSONArray array = new JSONArray(result);
-			int num = array.length();
-			for(int i=0;i<num;i++)
-			{
-				JSONObject temp = array.getJSONObject(i);
-				lavoro = new Lavoro(temp.getInt("idLavoro"),temp.getInt("Percentuale"),temp.getString("Nome"),temp.getString("Descrizione"),temp.getString("Indirizzo"));
-				lavori.add(lavoro);
-				Button bottone = new Button(mViewPager.getContext());
-				String tasto = ""+lavoro.getId()+". "+lavoro.getNome();
-				bottone.setText(tasto);
-
-
-
-				LinearLayout linear = new LinearLayout(mViewPager.getContext());
-
-
-
-
-				StartSeeJob listener = new StartSeeJob(this, lavoro.getId(),mySelf);
-				bottone.setOnClickListener(listener);
-
-				linear.addView(bottone);
-
-				linear.setPadding(4, 4, 4, 4);
-				ll.add(linear);
-
-			}
-			RelativeLayout caricamento = (RelativeLayout)mViewPager.findViewById(R.id.caricamento1);
-			layout.removeView(caricamento);
-			num = ll.size();
-			for(int i=0;i<num;i++)
-			{
-				layout.addView(ll.get(i));
-			}
-
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-		} catch (Exception e)
+		ListView lista =(ListView) findViewById(R.id.listViewLavori);
+		if(result==null)
 		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task= new CaricaLavori(this).execute("http://lavoromatic.altervista.org/getWorks.php",""+mySelf.getIdAzienda());
+		}
+		else{
+			try{
+				JSONArray array = new JSONArray(result);
+				int num = array.length();
 
+				List<Lavoro> list = new LinkedList<Lavoro>();
+				if(num<1)
+				{
+					Toast.makeText(getApplicationContext(), "Nessun lavoro presente, creane uno!", Toast.LENGTH_LONG).show();
+				}
+				for(int i=0;i<num;i++)
+				{
+					JSONObject obj = array.getJSONObject(i);
+					Lavoro temp = new Lavoro(obj.getInt("idLavoro"),obj.getInt("Percentuale"),obj.getString("Nome"),obj.getString("Descrizione"),obj.getString("Indirizzo"));
+					list.add(temp);
+				}
+				AdapterLavori adapter = new AdapterLavori(this, R.layout.rowlavori, list);
+				lista.setAdapter(adapter);
+				lista.setOnItemClickListener(new OnItemClickListener() {
+
+
+					public void onItemClick(AdapterView<?> adapter, View view,
+							int position, long id) {
+
+						Lavoro l =(Lavoro) adapter.getItemAtPosition(position);
+						int idLavoro = l.getId();
+						Intent intent = new Intent(meStesso,SeeJob.class);
+						intent.putExtra("LavoroID", idLavoro);
+						intent.putExtra("mySelf_utente", mySelf);
+						startActivity(intent);
+
+					}				
+				});
+
+				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+				LinearLayout principale = (LinearLayout) findViewById(R.id.LinearPrincipale);
+				cerchio.setVisibility(View.INVISIBLE);
+				principale.setVisibility(View.VISIBLE);
+			}catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void caricaDipendenti(String result)
 	{
-		dipendenti = new ArrayList<Impiegato>();
-		Button bottone;
-		StartSeeEmploye start;
-		ArrayList<LinearLayout> ll = new ArrayList<LinearLayout>();
-		try {
-			LinearLayout layout = (LinearLayout) mViewPager.findViewById(R.id.list2);
-			JSONArray array = new JSONArray(result);
-			int num= array.length();
-
-			for(int i=0;i<num;i++)
+		ListView lista =(ListView) findViewById(R.id.listViewDipendenti);
+		List<Impiegato> list = new LinkedList<Impiegato>();
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
 			{
-				JSONObject temp = array.getJSONObject(i);
-				LinearLayout linear = new LinearLayout(mViewPager.getContext());
-
-				linear.setOrientation(LinearLayout.HORIZONTAL);
-				bottone = new Button(mViewPager.getContext());
-				bottone.setText(""+temp.getInt("idUtente")+". "+temp.getString("Ruolo")+": "+temp.getString("Nome")+" "+temp.getString("Cognome"));
-//				Toast.makeText(getApplicationContext(), "creo un listener con id "+temp.getInt("idUtente"), Toast.LENGTH_SHORT).show();
-				start = new StartSeeEmploye(this, temp.getInt("idUtente"),mySelf);
-				bottone.setOnClickListener(start);
-
-
-				
-
-				linear.addView(bottone);
-
-				ll.add(linear);
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
 			}
-			RelativeLayout caricamento = (RelativeLayout)mViewPager.findViewById(R.id.caricamento2);
-			layout.removeView(caricamento);
-			num = ll.size();
-			for(int i=0;i<num;i++)
+			task2= new CaricaDipendenti(this).execute("http://lavoromatic.altervista.org/getDipendenti.php",""+mySelf.getIdAzienda());
+		}
+		else{
+			try{
+				JSONArray array = new JSONArray(result);
+				int num = array.length();
+
+
+				for(int i=0;i<num;i++)
+				{
+					JSONObject obj = array.getJSONObject(i);
+					Impiegato imp = new Impiegato(obj.getString("Nome"),obj.getString("Cognome"),obj.getString("Email"),obj.getString("Password"),obj.getInt("idUtente"),obj.getInt("idAzienda"),obj.getString("Ruolo"));
+					list.add(imp);
+				}
+				AdapterDipendenti adapter = new AdapterDipendenti(this,R.layout.rowdipendenti,list);
+				lista.setAdapter(adapter);
+				lista.setOnItemClickListener(new OnItemClickListener() {
+
+
+					public void onItemClick(AdapterView<?> adapter, View view,
+							int position, long id) {
+						Impiegato imp = (Impiegato)adapter.getItemAtPosition(position);
+						Intent intent = new Intent(meStesso,VisualizzaDipendente.class);
+						intent.putExtra("IDDIPENDENTE", imp.getId());
+						intent.putExtra("mySelf_utente", mySelf);
+						startActivity(intent);
+
+					}
+				});
+
+				if(num>0)
+				{
+					LinearLayout linear = (LinearLayout)findViewById(R.id.LinearPrincipaleDipendenti);
+					ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar2);
+					cerchio.setVisibility(View.INVISIBLE);
+					linear.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "Nessun dipendente aggiungine uno!", Toast.LENGTH_SHORT).show();
+					LinearLayout linear = (LinearLayout)findViewById(R.id.LinearPrincipaleDipendenti);
+					ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar2);
+					cerchio.setVisibility(View.INVISIBLE);
+					linear.setVisibility(View.VISIBLE);
+				}
+
+
+			}catch(JSONException e)
 			{
-				layout.addView(ll.get(i));
+				Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+
 			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

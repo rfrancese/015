@@ -16,6 +16,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
 public class ModificaDipendente extends AsyncTask<String, String, String> {
@@ -27,6 +30,12 @@ public class ModificaDipendente extends AsyncTask<String, String, String> {
 	}
 	
 	protected String doInBackground(String... uri) {
+		ConnectivityManager cm = (ConnectivityManager)root.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		while(!(netinfo!=null && netinfo.isConnected()))
+		{
+			netinfo = cm.getActiveNetworkInfo();
+		}
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpResponse response;
 		String responseString = null;

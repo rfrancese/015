@@ -4,12 +4,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import it.connessioni.CaricaDipendente;
+import it.connessioni.CaricaLavoriDipendente;
 import it.connessioni.CaricaMySelf;
+import it.interfacce.Utente;
 import it.listeners.StartModificaDipendente;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -34,7 +39,7 @@ public class Impostazioni extends ActionBarActivity {
 		super.onDestroy();
 		if(task!=null && task.getStatus()!=AsyncTask.Status.FINISHED)
 			task.cancel(true);
-		
+
 	}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +52,26 @@ public class Impostazioni extends ActionBarActivity {
 			idUtente = intent.getExtras().getInt("IDUTENTE");
 			started=true;
 		}
+		else
+		{
+			Intent intent = getIntent();
+			int temp = intent.getIntExtra("IDUTENTE", -1);
+			if(temp != -1 && idUtente!=temp)
+			{
+				idUtente=temp;
+			}
 
+		}
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task=new CaricaMySelf(this).execute("http://lavoromatic.altervista.org/getMySelf.php",""+idUtente);
+
+
+
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
 			.add(R.id.container, new PlaceholderFragment()).commit();
@@ -94,25 +117,38 @@ public class Impostazioni extends ActionBarActivity {
 
 	public void caricato(String result)
 	{
-		try{
-
-			JSONObject temp = new JSONObject(result);
-			TextView nome,cognome,email;
-
-			nome = (TextView) findViewById(R.id.text_nome);
-			cognome=(TextView) findViewById(R.id.text_cognome);
-			email=(TextView) findViewById(R.id.text_email);
-			nome.setText(temp.getString("Nome"));
-			cognome.setText(temp.getString("Cognome"));
-			email.setText(temp.getString("Email"));
-			ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-			ScrollView scroll = (ScrollView)findViewById(R.id.scrollView1);
-			cerchio.setVisibility(View.INVISIBLE);
-			scroll.setVisibility(View.VISIBLE);
-
-		}catch(JSONException e)
+		if(result==null)
 		{
-			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task=new CaricaMySelf(this).execute("http://lavoromatic.altervista.org/getMySelf.php",""+idUtente);
+		}
+		else{
+			try{
+
+				JSONObject temp = new JSONObject(result);
+				TextView nome,cognome,email;
+
+				nome = (TextView) findViewById(R.id.text_nome);
+				cognome=(TextView) findViewById(R.id.text_cognome);
+				email=(TextView) findViewById(R.id.text_email);
+				nome.setText(temp.getString("Nome"));
+				cognome.setText(temp.getString("Cognome"));
+				email.setText(temp.getString("Email"));
+				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+				ScrollView scroll = (ScrollView)findViewById(R.id.scrollView1);
+				cerchio.setVisibility(View.INVISIBLE);
+				scroll.setVisibility(View.VISIBLE);
+
+			}catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -124,7 +160,7 @@ public class Impostazioni extends ActionBarActivity {
 		intent.putExtra("IDUTENTE", idUtente);
 		startActivity(intent);
 		bottone.setEnabled(true);
-		
+
 	}
 
 }

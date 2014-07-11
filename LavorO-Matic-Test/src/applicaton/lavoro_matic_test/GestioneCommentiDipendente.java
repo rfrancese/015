@@ -16,8 +16,11 @@ import org.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,13 +39,21 @@ import android.widget.Toast;
 
 public class GestioneCommentiDipendente extends ActionBarActivity {
 
-	private static AsyncTask<String,String,String> task,task2,task3;
+	private static AsyncTask<String,String,String> task,task2;
 	private static int idLavoro;
 	private static boolean started=false;
 	private static String nomeLavoro;
 	private static Impiegato mySelf;
 	private static GestioneCommentiDipendente meStesso;
 
+	public void onBackPressed()
+	{
+		super.onBackPressed();
+		Intent intent = new Intent(this,SeeJob_dip.class);
+		intent.putExtra("LavoroID", idLavoro);
+		intent.putExtra("mySelf_impiegato", mySelf);
+		startActivity(intent);
+	}
 
 	protected void onDestroy()
 	{
@@ -71,13 +82,29 @@ public class GestioneCommentiDipendente extends ActionBarActivity {
 			Intent intent = getIntent();
 			int temp = intent.getIntExtra("LavoroID", -1);
 			String temp2= intent.getStringExtra("NOMELAVORO");
+			Impiegato temp3 = (Impiegato)intent.getSerializableExtra("mySelf_impiegato");
+			int id = temp3.getId();
 			if(temp != idLavoro && temp != -1)
 			{
 				idLavoro = temp;
 				nomeLavoro=temp2;
+
 			}
+			if(temp3!=null && id!= mySelf.getId())
+			{
+				mySelf = temp3;
+			}
+
+		}
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
 		}
 		task = new CaricaCommentiDipendente(this).execute("http://lavoromatic.altervista.org/getCommenti.php",""+idLavoro);
+
+
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -96,41 +123,50 @@ public class GestioneCommentiDipendente extends ActionBarActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will
-				// automatically handle clicks on the Home/Up button, so long
-				// as you specify a parent activity in AndroidManifest.xml.
-				int id = item.getItemId();
-				if (id == R.id.aggiungi_commento) {
-					LayoutInflater inflater = getLayoutInflater();
-					new AlertDialog.Builder(this)
-					.setTitle("Aggiungi Commento")
-					.setView(inflater.inflate(R.layout.customdialog, null))
-					.setMessage("Scrivi il Commento da aggiungere")
-					.setPositiveButton("Conferma", new DialogInterface.OnClickListener() {
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.aggiungi_commento) {
+			LayoutInflater inflater = getLayoutInflater();
+			new AlertDialog.Builder(this)
+			.setTitle("Aggiungi Commento")
+			.setView(inflater.inflate(R.layout.customdialog, null))
+			.setMessage("Scrivi il Commento da aggiungere")
+			.setPositiveButton("Conferma", new DialogInterface.OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-
-							String autore = mySelf.getCognome()+" "+mySelf.getNome();
-							Dialog dialog2 = Dialog.class.cast(dialog);
-							EditText testo =(EditText) dialog2.findViewById(R.id.editTextTesto);
-							String text = testo.getText().toString();
-							task2= new InserisciCommentoDipendente(meStesso).execute("http://lavoromatic.altervista.org/AggiungiCommento.php",""+idLavoro,""+mySelf.getId(),text);
-							meStesso.caricamento();
-						}
-					})
-					.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
 
 
-						}
-					})
-					.show();
-					return true;
+					Dialog dialog2 = Dialog.class.cast(dialog);
+					EditText testo =(EditText) dialog2.findViewById(R.id.editTextTesto);
+					String text = testo.getText().toString();
+					ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+					NetworkInfo netinfo = cm.getActiveNetworkInfo();
+					boolean st = false;
+					if(netinfo==null)
+					{
+						Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+					}
+					task2= new InserisciCommentoDipendente(meStesso).execute("http://lavoromatic.altervista.org/AggiungiCommento.php",""+idLavoro,""+mySelf.getId(),text);
+					meStesso.caricamento();
+
 
 				}
-				return super.onOptionsItemSelected(item);
+			})
+			.setNegativeButton("Annulla", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+
+
+				}
+			})
+			.show();
+			return true;
+
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	/**
@@ -156,69 +192,98 @@ public class GestioneCommentiDipendente extends ActionBarActivity {
 	public void caricaCommenti(String result)
 	{
 		ListView lista =(ListView) findViewById(R.id.listView1);
-		
-		try{
-			JSONArray array = new JSONArray(result);
-			int num = array.length();
-
-			List<Commento> list = new LinkedList<Commento>();
-
-			for(int i=0;i<num;i++)
-			{
-				JSONObject obj = array.getJSONObject(i);
-				Commento temp = new Commento(idLavoro,obj.getInt("idAggiornamento"),obj.getString("Cognome")+" "+obj.getString("Nome"),obj.getString("Testo"));
-
-
-				list.add(temp);
-			}
-			AdapterCommenti adapter = new AdapterCommenti(this, R.layout.rowcommenti,list);
-			lista.setAdapter(adapter);
-
-
-			if(num>0)
-			{
-				LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
-				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-				cerchio.setVisibility(View.INVISIBLE);
-				scroll.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				Toast.makeText(getApplicationContext(), "Nessun Commento", Toast.LENGTH_SHORT).show();
-				LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
-				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-				cerchio.setVisibility(View.INVISIBLE);
-				scroll.setVisibility(View.VISIBLE);
-			}
-
-
-		}catch(JSONException e)
+		if(result==null)
 		{
-			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task = new CaricaCommentiDipendente(this).execute("http://lavoromatic.altervista.org/getCommenti.php",""+idLavoro);
+		}
+		else{
+			try{
+				JSONArray array = new JSONArray(result);
+				int num = array.length();
+
+				List<Commento> list = new LinkedList<Commento>();
+
+				for(int i=0;i<num;i++)
+				{
+					JSONObject obj = array.getJSONObject(i);
+					Commento temp = new Commento(idLavoro,obj.getInt("idAggiornamento"),obj.getString("Cognome")+" "+obj.getString("Nome"),obj.getString("Testo"));
 
 
+					list.add(temp);
+				}
+				AdapterCommenti adapter = new AdapterCommenti(this, R.layout.rowcommenti,list);
+				lista.setAdapter(adapter);
+
+
+				if(num>0)
+				{
+					LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
+					ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+					cerchio.setVisibility(View.INVISIBLE);
+					scroll.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "Nessun Commento", Toast.LENGTH_SHORT).show();
+					LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
+					ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+					cerchio.setVisibility(View.INVISIBLE);
+					scroll.setVisibility(View.VISIBLE);
+				}
+
+
+			}catch(JSONException e)
+			{
+				e.printStackTrace();
+
+
+			}
 		}
 	}
-	
+
 	public void inserimentoEffettuato(String result)
 	{
-		LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
-		ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-		cerchio.setVisibility(View.VISIBLE);
-		scroll.setVisibility(View.INVISIBLE);
-		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Perfavore Riprovare ", Toast.LENGTH_SHORT).show();
+			
+		}
+		else{
 
-		task = new CaricaCommentiDipendente(this).execute("http://lavoromatic.altervista.org/getCommenti.php",""+idLavoro);
+
+			LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
+			ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+			cerchio.setVisibility(View.VISIBLE);
+			scroll.setVisibility(View.INVISIBLE);
+			Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task = new CaricaCommentiDipendente(this).execute("http://lavoromatic.altervista.org/getCommenti.php",""+idLavoro);
+		}
+
+
 	}
-	
-	
+
+
 	public void caricamento()
 	{
 		LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
 		ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
 		cerchio.setVisibility(View.VISIBLE);
 		scroll.setVisibility(View.INVISIBLE);
-		
+
 	}
 
 }

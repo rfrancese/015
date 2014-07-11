@@ -1,6 +1,9 @@
 package applicaton.lavoro_matic_test;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -94,14 +97,37 @@ public class AggiungiLavoro extends ActionBarActivity {
 		description = descrizione.getText().toString();
 		address = indirizzo.getText().toString();
 		task=new it.connessioni.AggiungiLavoro(this);
-		task.execute("http://lavoromatic.altervista.org/InserisciLavoro.php",""+idAzienda,name,description,address);
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
+			task.execute("http://lavoromatic.altervista.org/InserisciLavoro.php",""+idAzienda,name,description,address);
+		aggiungi.setEnabled(false);
+		
+		
+		
 	}
 	
 	public void lavoroAggiunto(String result)
 	{
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			this.doTask(this.getCurrentFocus());
+		}
+		else{
 		Toast.makeText(getApplicationContext(),result, Toast.LENGTH_SHORT).show();
 		Intent intent = new Intent(this,HomePage_amm.class);
 		intent.putExtra("mySelf_utente", getIntent().getExtras().getSerializable("UTENTE"));
 		startActivity(intent);
+		}
 	}
 }

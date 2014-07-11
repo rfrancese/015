@@ -18,8 +18,9 @@
 
         <TextView
             android:id="@+id/nomeLavoro"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#cbcbcb"
             android:paddingBottom="40dp"
             android:text="Large Text"
             android:textAppearance="?android:attr/textAppearanceLarge"
@@ -27,8 +28,9 @@
 
         <Button
             android:id="@+id/button1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/customstate"
             android:onClick="revoca"
             android:text="Revoca"
             android:visibility="visible" />

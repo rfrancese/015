@@ -6,7 +6,7 @@
     <item
         android:id="@+id/cancella_dipendente"
         android:orderInCategory="100"
-        android:icon="@drawable/ic_action_cancel"
+        android:icon="@drawable/ic_action_discard"
         android:title="@string/action_settings"
         app:showAsAction="always"/>
 

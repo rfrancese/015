@@ -5,11 +5,15 @@ import org.json.JSONObject;
 
 import it.connessioni.CancellaDipendente;
 import it.connessioni.CaricaDipendente;
+import it.connessioni.CaricaDipendentiAssegnati;
 import it.interfacce.Impiegato;
 import it.listeners.StartModificaDipendente;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,7 +41,7 @@ public class VisualizzaDipendente extends ActionBarActivity {
 		super.onDestroy();
 		if(task!=null && task.getStatus()!= AsyncTask.Status.FINISHED)
 			task.cancel(true);
-		
+
 	}
 
 
@@ -59,7 +63,15 @@ public class VisualizzaDipendente extends ActionBarActivity {
 				idUtente=temp;
 		}
 
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task.execute("http://lavoromatic.altervista.org/getDipendente.php",""+idUtente);
+
+
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
 			.add(R.id.container, new PlaceholderFragment()).commit();
@@ -88,8 +100,15 @@ public class VisualizzaDipendente extends ActionBarActivity {
 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-
+					ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+					NetworkInfo netinfo = cm.getActiveNetworkInfo();
+					if(netinfo==null)
+					{
+						Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+					}
 					task2.execute("http://lavoromatic.altervista.org/CancellaDipendente.php",""+idUtente);
+
+
 
 				}
 			})
@@ -126,37 +145,57 @@ public class VisualizzaDipendente extends ActionBarActivity {
 
 	public void leggiDipendente(String result)
 	{
-		try{
-			JSONObject temp = new JSONObject(result);
-			TextView nome,cognome,email,ruolo;
-			Button modifica = (Button)findViewById(R.id.button1);
-			StartModificaDipendente list = new StartModificaDipendente(this, idUtente);
-			modifica.setOnClickListener(list);
-			nome = (TextView) findViewById(R.id.text_nome);
-			cognome=(TextView) findViewById(R.id.text_cognome);
-			email=(TextView) findViewById(R.id.text_email);
-			ruolo=(TextView) findViewById(R.id.text_ruolo);
-			nome.setText(temp.getString("Nome"));
-			cognome.setText(temp.getString("Cognome"));
-			email.setText(temp.getString("Email"));
-			ruolo.setText(temp.getString("Ruolo"));
-			ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-			ScrollView scroll = (ScrollView)findViewById(R.id.scrollView1);
-			cerchio.setVisibility(View.INVISIBLE);
-			scroll.setVisibility(View.VISIBLE);
-
-		}catch(JSONException e)
+		if(result==null)
 		{
-			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task = new CaricaDipendente(this).execute("http://lavoromatic.altervista.org/getDipendente.php",""+idUtente);
+		}
+		else{
+			try{
+				JSONObject temp = new JSONObject(result);
+				TextView nome,cognome,email,ruolo;
+				Button modifica = (Button)findViewById(R.id.button1);
+				StartModificaDipendente list = new StartModificaDipendente(this, idUtente);
+				modifica.setOnClickListener(list);
+				nome = (TextView) findViewById(R.id.text_nome);
+				cognome=(TextView) findViewById(R.id.text_cognome);
+				email=(TextView) findViewById(R.id.text_email);
+				ruolo=(TextView) findViewById(R.id.text_ruolo);
+				nome.setText(" "+temp.getString("Nome"));
+				cognome.setText(" "+temp.getString("Cognome"));
+				email.setText(" "+temp.getString("Email"));
+				ruolo.setText(" "+temp.getString("Ruolo"));
+				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+				ScrollView scroll = (ScrollView)findViewById(R.id.scrollView1);
+				cerchio.setVisibility(View.INVISIBLE);
+				scroll.setVisibility(View.VISIBLE);
+
+			}catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void eliminato(String result)
 	{
-		Intent intent = new Intent(this,HomePage_amm.class);
-		intent.putExtra("mySelf_utente", getIntent().getExtras().getSerializable("mySelf_utente"));
-		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
-		startActivity(intent);
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Perfavore riprovare.. ", Toast.LENGTH_SHORT).show();
+			
+		}
+		else{
+			Intent intent = new Intent(this,HomePage_amm.class);
+			intent.putExtra("mySelf_utente", getIntent().getExtras().getSerializable("mySelf_utente"));
+			Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+			startActivity(intent);
+		}
 
 	}
 }

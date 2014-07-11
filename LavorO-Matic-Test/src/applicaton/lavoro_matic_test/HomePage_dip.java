@@ -12,7 +12,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -53,7 +56,23 @@ public class HomePage_dip extends ActionBarActivity {
 			mySelf = (Impiegato)intent.getSerializableExtra("mySelf_impiegato");
 			started = true;
 		}
+		else
+		{
+			Intent intent = getIntent();
+			Impiegato temp = (Impiegato)intent.getSerializableExtra("mySelf_impiegato");
+			if(temp!=null && mySelf.getId()!=temp.getId())
+				mySelf=temp;
+		}
+
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task = new CaricaLavoriDipendente(this).execute("http://lavoromatic.altervista.org/getWorksDipendenti.php",""+mySelf.getIdAzienda(),""+mySelf.getId());
+
+
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -102,49 +121,60 @@ public class HomePage_dip extends ActionBarActivity {
 	public void lavoriCaricati(String result)
 	{
 		ListView lista =(ListView) findViewById(R.id.listViewDipendenti);
-
-		try{
-			JSONArray array = new JSONArray(result);
-			int num = array.length();
-
-			List<Lavoro> list = new LinkedList<Lavoro>();
-			if(num<1)
-			{
-				Toast.makeText(getApplicationContext(), "Non hai nessun lavoro assegnato", Toast.LENGTH_LONG).show();
-			}
-			for(int i=0;i<num;i++)
-			{
-				JSONObject obj = array.getJSONObject(i);
-				Lavoro temp = new Lavoro(obj.getInt("idLavoro"),obj.getInt("Percentuale"),obj.getString("Nome"),obj.getString("Descrizione"),obj.getString("Indirizzo"));
-				list.add(temp);
-			}
-			AdapterLavori adapter = new AdapterLavori(this, R.layout.rowlavori, list);
-			lista.setAdapter(adapter);
-			lista.setOnItemClickListener(new OnItemClickListener() {
-
-
-				public void onItemClick(AdapterView<?> adapter, View view,
-						int position, long id) {
-
-					Lavoro l =(Lavoro) adapter.getItemAtPosition(position);
-					int idLavoro = l.getId();
-					Intent intent = new Intent(meStesso,SeeJob_dip.class);
-					intent.putExtra("LavoroID", idLavoro);
-					intent.putExtra("mySelf_impiegato", mySelf);
-					startActivity(intent);
-
-				}				
-			});
-
-			ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-			LinearLayout principale = (LinearLayout) findViewById(R.id.LinearPrincipale);
-			cerchio.setVisibility(View.INVISIBLE);
-			principale.setVisibility(View.VISIBLE);
-		}catch(JSONException e)
+		if(result==null)
 		{
-			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task = new CaricaLavoriDipendente(this).execute("http://lavoromatic.altervista.org/getWorksDipendenti.php",""+mySelf.getIdAzienda(),""+mySelf.getId());
 		}
+		else{
+			try{
+				JSONArray array = new JSONArray(result);
+				int num = array.length();
 
+				List<Lavoro> list = new LinkedList<Lavoro>();
+				if(num<1)
+				{
+					Toast.makeText(getApplicationContext(), "Non hai nessun lavoro assegnato", Toast.LENGTH_LONG).show();
+				}
+				for(int i=0;i<num;i++)
+				{
+					JSONObject obj = array.getJSONObject(i);
+					Lavoro temp = new Lavoro(obj.getInt("idLavoro"),obj.getInt("Percentuale"),obj.getString("Nome"),obj.getString("Descrizione"),obj.getString("Indirizzo"));
+					list.add(temp);
+				}
+				AdapterLavori adapter = new AdapterLavori(this, R.layout.rowlavori, list);
+				lista.setAdapter(adapter);
+				lista.setOnItemClickListener(new OnItemClickListener() {
+
+
+					public void onItemClick(AdapterView<?> adapter, View view,
+							int position, long id) {
+
+						Lavoro l =(Lavoro) adapter.getItemAtPosition(position);
+						int idLavoro = l.getId();
+						Intent intent = new Intent(meStesso,SeeJob_dip.class);
+						intent.putExtra("LavoroID", idLavoro);
+						intent.putExtra("mySelf_impiegato", mySelf);
+						startActivity(intent);
+
+					}				
+				});
+
+				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+				LinearLayout principale = (LinearLayout) findViewById(R.id.LinearPrincipale);
+				cerchio.setVisibility(View.INVISIBLE);
+				principale.setVisibility(View.VISIBLE);
+			}catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

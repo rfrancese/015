@@ -16,6 +16,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import applicaton.lavoro_matic_test.HomePage_amm;
 
@@ -28,6 +31,12 @@ public class CaricaDipendenti extends AsyncTask<String, String, String>{
 	}
 	
 	protected String doInBackground(String... uri) {
+		ConnectivityManager cm = (ConnectivityManager)home.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		while(!(netinfo!=null && netinfo.isConnected()))
+		{
+			netinfo = cm.getActiveNetworkInfo();
+		}
 		HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         String responseString = null;
@@ -43,7 +52,7 @@ public class CaricaDipendenti extends AsyncTask<String, String, String>{
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 response.getEntity().writeTo(out);
                 out.close();
-                responseString = out.toString();
+                responseString = out.toString("ISO-8859-1");
             } else{
                 //Closes the connection.
                 response.getEntity().getContent().close();

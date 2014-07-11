@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">LavorO-Matic</string>
-    <string name="loading_text_background">LavorO-Matic\nLog-In</string>
+    <string name="loading_text_background">Log-In</string>
     <string name="instruction_title">tocca lo schermo per il login</string>
     <string name="action_aggiorna_lavori">Aggiorna Lavori</string>
     <string name="title_activity_loading">LavorO-Matic</string>
@@ -12,18 +12,18 @@
     <string name="title_section1">Lavori</string>
     <string name="title_section2">Dipendenti</string>
     <string name="action_settings">Opzioni</string>
-    <string name="title_activity_see_job">Job</string>
+    <string name="title_activity_see_job">Lavoro</string>
     <string name="title_activity_modify_job">Modifica Lavoro</string>
-    <string name="nome">Nome</string>
-    <string name="descrizione">Descrizione</string>
-    <string name="indirizzo">Indirizzo</string>
-    <string name="cognome">Cognome</string>
-    <string name="email">Email</string>
-    <string name="ruolo">Ruolo</string>
+    <string name="nome">Nome:</string>
+    <string name="descrizione">Descrizione:</string>
+    <string name="indirizzo">Indirizzo:</string>
+    <string name="cognome">Cognome:</string>
+    <string name="email">Email:</string>
+    <string name="ruolo">Ruolo:</string>
     <string name="title_activity_visualizza_dipendente">Dipendente</string>
     <string name="unknow">Unknow</string>
     <string name="title_activity_aggiungi_dipendente">Aggiungi Dipendente</string>
-    <string name="password">Password</string>
+    <string name="password">Password:</string>
     <string name="title_activity_modifica_dipendente">Modifica Dipendente</string>
     <string name="modifica">Modifica</string>
     <string name="lavori_assegnati">Lavori Assegnati</string>
@@ -36,7 +36,6 @@
     <string name="title_activity_gestione_commenti">Gestione Commenti</string>
     <string name="title_activity_home_page_dip">LavorO-Matic</string>
     <string name="title_activity_see_job_dip">Visualizza Lavoro</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_gestione_commenti_dipendente">Commenti Lavoro</string>
 
 </resources>

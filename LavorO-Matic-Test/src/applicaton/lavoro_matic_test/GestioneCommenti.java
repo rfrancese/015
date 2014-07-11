@@ -2,6 +2,7 @@ package applicaton.lavoro_matic_test;
 
 import it.connessioni.CancellaCommento;
 import it.connessioni.CaricaCommenti;
+import it.connessioni.CaricaNonAssegnati;
 import it.connessioni.InserisciCommento;
 import it.interfacce.Commento;
 import it.interfacce.Utente;
@@ -16,8 +17,11 @@ import org.json.JSONObject;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -78,8 +82,15 @@ public class GestioneCommenti extends ActionBarActivity {
 				nomeLavoro=temp2;
 			}
 		}
-
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task = new CaricaCommenti(this).execute("http://lavoromatic.altervista.org/getCommenti.php",""+idLavoro);
+
+
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -112,11 +123,19 @@ public class GestioneCommenti extends ActionBarActivity {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 
-					String autore = mySelf.getCognome()+" "+mySelf.getNome();
+
 					Dialog dialog2 = Dialog.class.cast(dialog);
 					EditText testo =(EditText) dialog2.findViewById(R.id.editTextTesto);
 					String text = testo.getText().toString();
-					task2= new InserisciCommento(meStesso).execute("http://lavoromatic.altervista.org/AggiungiCommento.php",""+idLavoro,""+mySelf.getId(),text);
+					ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+					NetworkInfo netinfo = cm.getActiveNetworkInfo();
+					if(netinfo==null)
+					{
+						Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+					}
+					task2= new InserisciCommento(meStesso).execute("http://lavoromatic.altervista.org/AggiungiCommento.php",""+idLavoro,""+""+mySelf.getId(),text);
+
+
 
 				}
 			})
@@ -158,106 +177,150 @@ public class GestioneCommenti extends ActionBarActivity {
 	public void caricaCommenti(String result)
 	{
 		ListView lista =(ListView) findViewById(R.id.listView1);
-
-		try{
-			JSONArray array = new JSONArray(result);
-			int num = array.length();
-
-			List<Commento> list = new LinkedList<Commento>();
-
-			for(int i=0;i<num;i++)
-			{
-				JSONObject obj = array.getJSONObject(i);
-				Commento temp = new Commento(idLavoro,obj.getInt("idAggiornamento"),obj.getString("Cognome")+" "+obj.getString("Nome"),obj.getString("Testo"));
-
-
-				list.add(temp);
-			}
-			AdapterCommenti adapter = new AdapterCommenti(this, R.layout.rowcommenti,list);
-			lista.setAdapter(adapter);
-			lista.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-				public boolean onItemLongClick(AdapterView<?> adapter, View view,
-						int position, long id) {
-
-					Commento commento =(Commento)adapter.getItemAtPosition(position);
-
-
-					final int idAggiornamento = commento.getIdAggiornamento();
-
-					new AlertDialog.Builder(meStesso)
-					.setTitle("Cancella commento")
-					.setMessage("Vuoi davvero cancellare il commento?")
-					.setPositiveButton("Sì", new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-
-
-							
-							task3=new CancellaCommento(meStesso).execute("http://lavoromatic.altervista.org/cancellaCommento.php",""+idAggiornamento);
-							meStesso.caricamento();
-
-						}
-					})
-					.setNegativeButton("No", new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-
-
-						}
-					})
-					.show();
-
-					return true;
-				}
-			});
-
-			if(num>0)
-			{
-				LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
-				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-				cerchio.setVisibility(View.INVISIBLE);
-				scroll.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				Toast.makeText(getApplicationContext(), "Nessun Commento", Toast.LENGTH_SHORT).show();
-				LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
-				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-				cerchio.setVisibility(View.INVISIBLE);
-				scroll.setVisibility(View.VISIBLE);
-			}
-
-
-		}catch(JSONException e)
+		if(result==null)
 		{
-			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task = new CaricaCommenti(this).execute("http://lavoromatic.altervista.org/getCommenti.php",""+idLavoro);
+		}
+		else{
+			try{
+				JSONArray array = new JSONArray(result);
+				int num = array.length();
+
+				List<Commento> list = new LinkedList<Commento>();
+
+				for(int i=0;i<num;i++)
+				{
+					JSONObject obj = array.getJSONObject(i);
+					Commento temp = new Commento(idLavoro,obj.getInt("idAggiornamento"),obj.getString("Cognome")+" "+obj.getString("Nome"),obj.getString("Testo"));
 
 
+					list.add(temp);
+				}
+				AdapterCommenti adapter = new AdapterCommenti(this, R.layout.rowcommenti,list);
+				lista.setAdapter(adapter);
+				lista.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+					public boolean onItemLongClick(AdapterView<?> adapter, View view,
+							int position, long id) {
+
+						Commento commento =(Commento)adapter.getItemAtPosition(position);
+
+
+						final int idAggiornamento = commento.getIdAggiornamento();
+
+						new AlertDialog.Builder(meStesso)
+						.setTitle("Cancella commento")
+						.setMessage("Vuoi davvero cancellare il commento?")
+						.setPositiveButton("Sì", new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+
+
+								ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+								NetworkInfo netinfo = cm.getActiveNetworkInfo();
+								if(netinfo==null)
+								{
+									Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+								}
+								task3=new CancellaCommento(meStesso).execute("http://lavoromatic.altervista.org/cancellaCommento.php",""+idAggiornamento);
+
+
+
+								meStesso.caricamento();
+
+							}
+						})
+						.setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+
+
+							}
+						})
+						.show();
+
+						return true;
+					}
+				});
+
+				if(num>0)
+				{
+					LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
+					ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+					cerchio.setVisibility(View.INVISIBLE);
+					scroll.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "Nessun Commento", Toast.LENGTH_SHORT).show();
+					LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
+					ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+					cerchio.setVisibility(View.INVISIBLE);
+					scroll.setVisibility(View.VISIBLE);
+				}
+
+
+			}catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void inserimentoEffettuato(String result)
 	{
-		LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
-		ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-		cerchio.setVisibility(View.VISIBLE);
-		scroll.setVisibility(View.INVISIBLE);
-		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Perfavore riprovaare", Toast.LENGTH_SHORT).show();
+			
+		}
+		else
+		{
+			LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
+			ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+			cerchio.setVisibility(View.VISIBLE);
+			scroll.setVisibility(View.INVISIBLE);
+			Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
 
-		task = new CaricaCommenti(this).execute("http://lavoromatic.altervista.org/getCommenti.php",""+idLavoro);
+			task = new CaricaCommenti(this).execute("http://lavoromatic.altervista.org/getCommenti.php",""+idLavoro);
+		}
+
 	}
 
 	public void commentoCancellato(String result)
 	{
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Perfavore riprovare", Toast.LENGTH_SHORT).show();
+			
+		}
 		LinearLayout scroll = (LinearLayout)findViewById(R.id.LinearCommenti);
 		ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
 		cerchio.setVisibility(View.VISIBLE);
 		scroll.setVisibility(View.INVISIBLE);
 		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
 
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task = new CaricaCommenti(this).execute("http://lavoromatic.altervista.org/getCommenti.php",""+idLavoro);
 	}
 

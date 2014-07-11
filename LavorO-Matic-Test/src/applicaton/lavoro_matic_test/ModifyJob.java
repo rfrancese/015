@@ -1,13 +1,17 @@
 package applicaton.lavoro_matic_test;
 
 import it.connessioni.CaricaModificaLavoro;
+import it.connessioni.CaricaModificaMySelf;
 import it.interfacce.Lavoro;
 import it.listeners.ModificaLavoro;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -31,8 +35,8 @@ public class ModifyJob extends ActionBarActivity {
 	private static AsyncTask<String, String, String> task,task2;
 
 
-	
-	
+
+
 	protected void onDestroy()
 	{
 		super.onDestroy();
@@ -59,7 +63,16 @@ public class ModifyJob extends ActionBarActivity {
 			if(temp!=-1 && temp!=idLavoro)
 				idLavoro=temp;
 		}
+
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task=new CaricaModificaLavoro(this).execute("http://lavoromatic.altervista.org/getLavoro.php",""+idLavoro);
+
+
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -107,41 +120,60 @@ public class ModifyJob extends ActionBarActivity {
 
 	public void caricaLavoro(String result)
 	{
-		try{
-
-			JSONObject temp = new JSONObject(result);
-
-			Lavoro lavoro = new Lavoro(temp.getInt("idLavoro"),temp.getInt("percentuale"),temp.getString("Nome"),temp.getString("Descrizione"),temp.getString("Indirizzo"));
-			ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-			
-			EditText edit_nome,edit_descrizione,edit_indirizzo;
-
-			cerchio.setVisibility(View.INVISIBLE);
-			edit_nome=(EditText)findViewById(R.id.editText_nome);
-			edit_descrizione=(EditText)findViewById(R.id.editText_descrizione);
-			edit_indirizzo=(EditText)findViewById(R.id.editText_indirizzo);
-			edit_nome.setText(lavoro.getNome());
-			edit_descrizione.setText(lavoro.getDescrizione());
-			edit_indirizzo.setText(lavoro.getIndirizzo());
-			
-			ScrollView scroll = (ScrollView)findViewById(R.id.scrollView1);
-			scroll.setVisibility(View.VISIBLE);
-
-		}catch(JSONException e)
+		if(result==null)
 		{
-			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task=new CaricaModificaLavoro(this).execute("http://lavoromatic.altervista.org/getLavoro.php",""+idLavoro);
 		}
+		else{
+			try{
 
+				JSONObject temp = new JSONObject(result);
+
+				Lavoro lavoro = new Lavoro(temp.getInt("idLavoro"),temp.getInt("percentuale"),temp.getString("Nome"),temp.getString("Descrizione"),temp.getString("Indirizzo"));
+				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+
+				EditText edit_nome,edit_descrizione,edit_indirizzo;
+
+				cerchio.setVisibility(View.INVISIBLE);
+				edit_nome=(EditText)findViewById(R.id.editText_nome);
+				edit_descrizione=(EditText)findViewById(R.id.editText_descrizione);
+				edit_indirizzo=(EditText)findViewById(R.id.editText_indirizzo);
+				edit_nome.setText(lavoro.getNome());
+				edit_descrizione.setText(lavoro.getDescrizione());
+				edit_indirizzo.setText(lavoro.getIndirizzo());
+
+				ScrollView scroll = (ScrollView)findViewById(R.id.scrollView1);
+				scroll.setVisibility(View.VISIBLE);
+
+			}catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
 
 	}
 
 	public void done(String result)
 	{
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Perfavore riprovare.. ", Toast.LENGTH_SHORT).show();
+			findViewById(R.id.button1).setEnabled(true);
+		}
+		else{
 		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
 		findViewById(R.id.button1).setEnabled(true);
 		Intent intent = new Intent(this,SeeJob.class);
 		intent.putExtra("LavoroID", idLavoro);
 		startActivity(intent);
+		}
 	}
 
 
@@ -157,7 +189,16 @@ public class ModifyJob extends ActionBarActivity {
 		String description = descrizione.getText().toString();
 		String address = indirizzo.getText().toString();
 
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task2=new it.connessioni.ModificaLavoro(this).execute("http://lavoromatic.altervista.org/modificaLavoro.php",""+idLavoro,name,description,address);
 		findViewById(R.id.button1).setEnabled(false);
+
+
+
 	}
 }

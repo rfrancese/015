@@ -3,12 +3,17 @@ package applicaton.lavoro_matic_test;
 import java.util.StringTokenizer;
 
 import it.connessioni.CaricaDipendentiAssegnati;
+import it.connessioni.CaricaModificaLavoro;
 import it.connessioni.Revoca;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +23,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -62,7 +69,16 @@ public class RevocaDipendenti extends ActionBarActivity {
 				nomeLavoro=temp2;
 				idAzienda = temp3;}
 		}
+
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task = new CaricaDipendentiAssegnati(this).execute("http://lavoromatic.altervista.org/getDipendentiAssegnati.php",""+idAzienda,""+idLavoro);
+
+
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
 			.add(R.id.container, new PlaceholderFragment()).commit();
@@ -112,41 +128,53 @@ public class RevocaDipendenti extends ActionBarActivity {
 	public void caricaLista(String result)
 	{
 		ListView lista =(ListView) findViewById(R.id.listView1);
-
-		try{
-			JSONArray array = new JSONArray(result);
-			int num = array.length();
-
-			String[] elements = new String[num];
-			for(int i=0;i<num;i++)
-			{
-				JSONObject obj = array.getJSONObject(i);
-				String temp = obj.getString("idUtente")+". "+obj.getString("Nome")+" "+obj.getString("Cognome")+"\n - "+obj.getString("Ruolo");
-				elements[i]=temp;
-			}
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.row,R.id.textViewList,elements);
-			lista.setAdapter(adapter);
-
-			if(num>0)
-			{
-				LinearLayout linear = (LinearLayout)findViewById(R.id.LinearAssegna);
-				ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
-				cerchio.setVisibility(View.INVISIBLE);
-				linear.setVisibility(View.VISIBLE);
-			}
-			else
-			{
-				Toast.makeText(getApplicationContext(), "Nessun dipendente Assegnato", Toast.LENGTH_SHORT).show();
-				super.onBackPressed();
-			}
-
-
-		}catch(JSONException e)
+		if(result==null)
 		{
-			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task = new CaricaDipendentiAssegnati(this).execute("http://lavoromatic.altervista.org/getDipendentiAssegnati.php",""+idAzienda,""+idLavoro);
 		}
+		else{
+			try{
+				JSONArray array = new JSONArray(result);
+				int num = array.length();
 
+				String[] elements = new String[num];
+				for(int i=0;i<num;i++)
+				{
+					JSONObject obj = array.getJSONObject(i);
+					String temp = obj.getString("idUtente")+". "+obj.getString("Nome")+" "+obj.getString("Cognome")+"\n - "+obj.getString("Ruolo");
+					elements[i]=temp;
+				}
+				ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.row,R.id.textViewList,elements);
+				lista.setAdapter(adapter);
+
+
+				if(num>0)
+				{
+					LinearLayout linear = (LinearLayout)findViewById(R.id.LinearAssegna);
+					ProgressBar cerchio = (ProgressBar)findViewById(R.id.progressBar1);
+					cerchio.setVisibility(View.INVISIBLE);
+					linear.setVisibility(View.VISIBLE);
+				}
+				else
+				{
+					Toast.makeText(getApplicationContext(), "Nessun dipendente Assegnato", Toast.LENGTH_SHORT).show();
+					super.onBackPressed();
+				}
+
+
+			}catch(JSONException e)
+			{
+				Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+
+			}
+		}
 	}
 
 	public void revoca(View view)
@@ -155,15 +183,17 @@ public class RevocaDipendenti extends ActionBarActivity {
 		Button bottone =(Button)findViewById(R.id.button1);
 		bottone.setEnabled(false);
 		String daRevocare="";
+
 		int num = lista.getChildCount();
 		for(int i=0;i<num;i++)
 		{
 			LinearLayout viuw =(LinearLayout) lista.getChildAt(i);
-			CheckBox box = (CheckBox)viuw.getChildAt(1);
+			LinearLayout temp2 = (LinearLayout)viuw.getChildAt(1);
+			CheckBox box = (CheckBox)temp2.getChildAt(0);
 			if(box.isChecked())
 			{
-
-				TextView text = (TextView) viuw.getChildAt(0);
+				temp2 = (LinearLayout)viuw.getChildAt(0);
+				TextView text = (TextView) temp2.getChildAt(0);
 				String temp = text.getText().toString();
 
 				StringTokenizer token = new StringTokenizer(temp,".");
@@ -178,18 +208,33 @@ public class RevocaDipendenti extends ActionBarActivity {
 					daRevocare+=","+codice;
 			}
 		}
-		
+
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task2=new Revoca(this).execute("http://lavoromatic.altervista.org/revocaDipendente.php",daRevocare,""+idLavoro);
+
+
 
 	}
 
 
 	public void done(String result)
 	{
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			this.revoca(getCurrentFocus());
+		}
+		else{
 		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
 		Button bottone =(Button)findViewById(R.id.button1);
 		super.onBackPressed();
 		bottone.setEnabled(true);
+		}
 	}
 
 }

@@ -6,7 +6,7 @@
     <item
         android:id="@+id/aggiungi_commento"
         android:orderInCategory="100"
-        android:icon="@drawable/ic_action_new"
+        android:icon="@drawable/ic_action_chat"
         android:title="aggiungi commento"
         app:showAsAction="always"/>
 

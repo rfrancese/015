@@ -102,7 +102,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingRight="40dp"
-                    android:text="@string/email"
+                    android:text="@string/password"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <EditText
@@ -149,8 +149,9 @@
 
                 <Button
                     android:id="@+id/button1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/customstate"
                     android:text="@string/modifica" />
             </LinearLayout>
         </LinearLayout>

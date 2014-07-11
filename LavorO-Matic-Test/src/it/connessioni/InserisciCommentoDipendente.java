@@ -16,6 +16,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import applicaton.lavoro_matic_test.GestioneCommentiDipendente;
 
@@ -29,12 +32,19 @@ public class InserisciCommentoDipendente extends AsyncTask<String, String, Strin
 	}
 	
 	protected String doInBackground(String... uri) {
+		ConnectivityManager cm = (ConnectivityManager)home.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		while(!(netinfo!=null && netinfo.isConnected()))
+		{
+			netinfo = cm.getActiveNetworkInfo();
+		}
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpResponse response;
 		String responseString = null;
 		try {
 
 			HttpPost post = new HttpPost(uri[0]);
+			post.setHeader("Accept-Charset","utf-8");
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 			nameValuePairs.add(new BasicNameValuePair("idLavoro", uri[1]));
 			nameValuePairs.add(new BasicNameValuePair("idAutore", uri[2]));

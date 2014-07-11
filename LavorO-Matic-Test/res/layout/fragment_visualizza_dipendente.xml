@@ -20,6 +20,7 @@
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:orientation="vertical"
+            android:background="#cbcbcb"
             android:paddingTop="50dp" >
 
             <LinearLayout
@@ -31,7 +32,6 @@
                     android:id="@+id/textView1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="50dp"
                     android:text="@string/nome"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -52,7 +52,6 @@
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20dp"
                     android:text="@string/cognome"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -73,7 +72,6 @@
                     android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="50dp"
                     android:text="@string/email"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -94,7 +92,6 @@
                     android:id="@+id/textView4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingRight="50dp"
                     android:text="@string/ruolo"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -105,6 +102,10 @@
                     android:text="@string/unknow"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
             </LinearLayout>
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="5dp"
+                android:background="#d6d6d6" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -113,8 +114,9 @@
 
                 <Button
                     android:id="@+id/button1"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/customstate"
                     android:text="@string/modifica" />
             </LinearLayout>
         </LinearLayout>

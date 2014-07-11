@@ -2,6 +2,7 @@ package it.connessioni;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.widget.Toast;
 import applicaton.lavoro_matic_test.ModifyJob;
 import applicaton.lavoro_matic_test.SeeJob;
 
@@ -31,6 +36,12 @@ public class CaricaLavoro extends AsyncTask<String, String, String>{
 
 	@Override
 	protected String doInBackground(String... uri) {
+		ConnectivityManager cm = (ConnectivityManager)see.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		while(!(netinfo!=null && netinfo.isConnected()))
+		{
+			netinfo = cm.getActiveNetworkInfo();
+		}
 		HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response;
         String responseString = null;
@@ -46,7 +57,7 @@ public class CaricaLavoro extends AsyncTask<String, String, String>{
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 response.getEntity().writeTo(out);
                 out.close();
-                responseString = out.toString();
+                responseString = out.toString("ISO-8859-1");
             } else{
                 //Closes the connection.
                 response.getEntity().getContent().close();
@@ -55,7 +66,7 @@ public class CaricaLavoro extends AsyncTask<String, String, String>{
         } catch (ClientProtocolException e) {
             //TODO Handle problems..
         } catch (IOException e) {
-            //TODO Handle problems..
+            
         }
         
         return responseString;

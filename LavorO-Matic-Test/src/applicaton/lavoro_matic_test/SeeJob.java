@@ -1,7 +1,10 @@
 package applicaton.lavoro_matic_test;
 
+import java.util.Locale;
+
 import it.connessioni.CancellaLavoro;
 import it.connessioni.CaricaLavoro;
+import it.connessioni.CaricaLavoroDipendente;
 import it.interfacce.Lavoro;
 import it.interfacce.Utente;
 import it.listeners.StartModifyJob;
@@ -10,8 +13,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -42,9 +49,9 @@ public class SeeJob extends ActionBarActivity {
 			task.cancel(true);
 		if(task2!=null && task2.getStatus() != AsyncTask.Status.FINISHED)
 			task2.cancel(true);
-			
+
 	}
-	
+
 
 
 
@@ -67,7 +74,16 @@ public class SeeJob extends ActionBarActivity {
 				mySelf =(Utente) getIntent().getSerializableExtra("mySelf_utente");
 			}
 		}
+
+		ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = cm.getActiveNetworkInfo();
+		if(netinfo==null)
+		{
+			Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+		}
 		task.execute("http://lavoromatic.altervista.org/getLavoro.php",""+idLavoro);
+
+
 
 		if (savedInstanceState == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -97,8 +113,15 @@ public class SeeJob extends ActionBarActivity {
 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-
+					ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+					NetworkInfo netinfo = cm.getActiveNetworkInfo();
+					if(netinfo==null)
+					{
+						Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+					}
 					task2.execute("http://lavoromatic.altervista.org/CancellaLavoro.php",""+idLavoro);
+
+
 				}
 			})
 			.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -134,43 +157,53 @@ public class SeeJob extends ActionBarActivity {
 
 	public void caricaLavoro(String result)
 	{
-		try {
-			JSONObject temp = new JSONObject(result);
-			TextView nome,descrizione,indirizzo;
-			Button mappa,modifica;
-			lavoro = new Lavoro(temp.getInt("idLavoro"), temp.getInt("percentuale"), temp.getString("Nome"), temp.getString("Descrizione"), temp.getString("Indirizzo"));
-			ProgressBar caricamento;
-			nome = (TextView)findViewById(R.id.see_nome);
-			descrizione = (TextView)findViewById(R.id.see_descrizione);
-			indirizzo = (TextView)findViewById(R.id.see_indirizzo);
-			//			mappa= (Button)findViewById(R.id.see_Mappa);
-			modifica = (Button)findViewById(R.id.modify_button);
-			StartModifyJob start = new StartModifyJob(lavoro.getId(), this);
-			modifica.setOnClickListener(start);
-			caricamento = (ProgressBar)findViewById(R.id.see_caricamento);
-			int percentuale = temp.getInt("percentuale");
-			nome.setText(temp.getString("Nome"));
-			descrizione.setText(temp.getString("Descrizione"));
-			indirizzo.setText(temp.getString("Indirizzo"));
-			//			implementare listener button mappa
-			caricamento.setVisibility(View.INVISIBLE);
-			LinearLayout principale = (LinearLayout)findViewById(R.id.LinearPrincipale);
-			principale.setVisibility(View.VISIBLE);
+		if(result==null)
+		{
+			Toast.makeText(getApplicationContext(), "Problemi di connessione, Ritento ", Toast.LENGTH_SHORT).show();
+			ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo netinfo = cm.getActiveNetworkInfo();
+			if(netinfo==null)
+			{
+				Toast.makeText(getApplicationContext(), "Ripristino connessione in corso..", Toast.LENGTH_LONG).show();
+			}
+			task = new CaricaLavoro(this).execute("http://lavoromatic.altervista.org/getLavoro.php",""+idLavoro);
+		}
+		else{
+			try {
+				JSONObject temp = new JSONObject(result);
+				TextView nome,descrizione,indirizzo;
+				Button modifica;
+				lavoro = new Lavoro(temp.getInt("idLavoro"), temp.getInt("percentuale"), temp.getString("Nome"), temp.getString("Descrizione"), temp.getString("Indirizzo"));
+				ProgressBar caricamento;
+				nome = (TextView)findViewById(R.id.see_nome);
+				descrizione = (TextView)findViewById(R.id.see_descrizione);
+				indirizzo = (TextView)findViewById(R.id.see_indirizzo);
+				//			mappa= (Button)findViewById(R.id.see_Mappa);
+				modifica = (Button)findViewById(R.id.modify_button);
+				StartModifyJob start = new StartModifyJob(lavoro.getId(), this);
+				modifica.setOnClickListener(start);
+				caricamento = (ProgressBar)findViewById(R.id.see_caricamento);
+
+				nome.setText(" "+temp.getString("Nome"));
+				descrizione.setText(" "+temp.getString("Descrizione"));
+				indirizzo.setText(" "+temp.getString("Indirizzo"));
+
+				caricamento.setVisibility(View.INVISIBLE);
+				LinearLayout principale = (LinearLayout)findViewById(R.id.LinearPrincipale);
+				principale.setVisibility(View.VISIBLE);
 
 
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			Toast.makeText(getApplicationContext(), "Lavoro non trovato, qualcuno deve averlo cancellato", Toast.LENGTH_LONG).show();
-			Intent intent = new Intent(this,HomePage_amm.class);
-			intent.putExtra("mySelf_utente", getIntent().getExtras().getSerializable("mySelf_utente"));
-			startActivity(intent);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				Toast.makeText(getApplicationContext(), "Lavoro non trovato, qualcuno deve averlo cancellato", Toast.LENGTH_LONG).show();
+				Intent intent = new Intent(this,HomePage_amm.class);
+				intent.putExtra("mySelf_utente", getIntent().getExtras().getSerializable("mySelf_utente"));
+				startActivity(intent);
+			}
 		}
 	}
 
-	public void changeStarted(boolean input)
-	{
-		started=input;
-	}
+
 
 	public void cancellato(String result)
 	{
@@ -179,7 +212,7 @@ public class SeeJob extends ActionBarActivity {
 		Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
 		startActivity(intent);
 	}
-	
+
 	public void doAssegna(View view)
 	{
 		Intent intent = new Intent(this,AssegnaDipendenti.class);
@@ -196,7 +229,7 @@ public class SeeJob extends ActionBarActivity {
 		intent.putExtra("NOMELAVORO", lavoro.getNome());
 		startActivity(intent);
 	}
-	
+
 	public void visualizzaAssegnati(View view)
 	{
 		Intent intent = new Intent(this,VisualizzaDipendentiAssegnati.class);
@@ -205,13 +238,20 @@ public class SeeJob extends ActionBarActivity {
 		intent.putExtra("NOMELAVORO", lavoro.getNome());
 		startActivity(intent);
 	}
-	
+
 	public void doCommenti(View view)
 	{
 		Intent intent = new Intent(this,GestioneCommenti.class);
 		intent.putExtra("LavoroID", idLavoro);
 		intent.putExtra("mySelf_utente", mySelf);
 		intent.putExtra("NOMELAVORO", lavoro.getNome());
+		startActivity(intent);
+	}
+
+	public void doMappa(View view)
+	{
+		String uri = String.format(Locale.ITALIAN, "http://maps.google.it/maps?q="+lavoro.getIndirizzo());
+		Intent intent = new Intent(Intent.ACTION_VIEW,Uri.parse(uri));
 		startActivity(intent);
 	}
 }
